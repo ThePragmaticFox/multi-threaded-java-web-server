@@ -14,5 +14,5 @@ jobs:
       -
         shell: bash
         run: |
-          sshpass -p ${{ secrets.SERVER_TOKEN }} ssh root@${{ secrets.SERVER_IP }} "docker pull pragmaticfox/multi-threaded-java-web-server:latest"
-          sshpass -p ${{ secrets.SERVER_TOKEN }} ssh root@${{ secrets.SERVER_IP }} "docker run -d -p 80:3000 --name website pragmaticfox/multi-threaded-java-web-server"
+          sudo sshpass -p ${{ secrets.SERVER_TOKEN }} ssh root@${{ secrets.SERVER_IP }} "docker pull pragmaticfox/multi-threaded-java-web-server:latest"
+          sudo sshpass -p ${{ secrets.SERVER_TOKEN }} ssh root@${{ secrets.SERVER_IP }} "docker run -d -p 80:3000 --name website pragmaticfox/multi-threaded-java-web-server"
