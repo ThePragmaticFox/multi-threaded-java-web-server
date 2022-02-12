@@ -40,21 +40,21 @@ jobs:
 
   needs: build
 
-    runs-on: ubuntu-latest
+  runs-on: ubuntu-latest
 
-    steps:
-      -
-        shell: bash
-        run: |
-          eval `ssh-agent -s`
-          ssh-add - <<< "${{ secrets.SERVER_DEPLOY }}"
-          mkdir -p ~/.ssh
-          ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
-          if [ $(root@${{ secrets.SERVER_IP }} "docker ps -q -f name=website") ]; then
-              ssh root@${{ secrets.SERVER_IP }} "docker kill website"
-              ssh root@${{ secrets.SERVER_IP }} "docker rm website"
-          fi
-          ssh root@${{ secrets.SERVER_IP }} "docker container prune --force"
-          ssh root@${{ secrets.SERVER_IP }} "docker image prune --force --all"
-          ssh root@${{ secrets.SERVER_IP }} "docker pull pragmaticfox/multi-threaded-java-web-server:latest"
-          ssh root@${{ secrets.SERVER_IP }} "docker run -d -p 80:3000 --name website pragmaticfox/multi-threaded-java-web-server:latest"
+  steps:
+    -
+      shell: bash
+      run: |
+        eval `ssh-agent -s`
+        ssh-add - <<< "${{ secrets.SERVER_DEPLOY }}"
+        mkdir -p ~/.ssh
+        ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
+        if [ $(root@${{ secrets.SERVER_IP }} "docker ps -q -f name=website") ]; then
+            ssh root@${{ secrets.SERVER_IP }} "docker kill website"
+            ssh root@${{ secrets.SERVER_IP }} "docker rm website"
+        fi
+        ssh root@${{ secrets.SERVER_IP }} "docker container prune --force"
+        ssh root@${{ secrets.SERVER_IP }} "docker image prune --force --all"
+        ssh root@${{ secrets.SERVER_IP }} "docker pull pragmaticfox/multi-threaded-java-web-server:latest"
+        ssh root@${{ secrets.SERVER_IP }} "docker run -d -p 80:3000 --name website pragmaticfox/multi-threaded-java-web-server:latest"
