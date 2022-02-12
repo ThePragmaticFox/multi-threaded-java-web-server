@@ -15,7 +15,7 @@ jobs:
         shell: bash
         run: |
           eval `ssh-agent -s`
-          sudo ssh-add - <<< "${{ secrets.SERVER_DEPLOY }}"
+          ssh-add - <<< "${{ secrets.SERVER_DEPLOY }}"
           sudo mkdir -p ~/.ssh
           sudo chmod 700 ~/.ssh
           sudo ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
