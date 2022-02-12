@@ -1,0 +1,37 @@
+ARG ARG_SERVER_DIRPATH=/server
+ARG ARG_SERVER_JAR=multi-threaded-java-web-server-0.1.jar
+
+FROM maven:3.8.4-openjdk-17-slim
+ENV DEBIAN_FRONTEND=noninteractive
+
+ARG ARG_SERVER_DIRPATH
+ENV SERVER_DIRPATH ${ARG_SERVER_DIRPATH}
+
+RUN mkdir -p ${SERVER_DIRPATH}/src
+COPY src/ ${SERVER_DIRPATH}/src/
+COPY pom.xml ${SERVER_DIRPATH}/
+
+RUN mvn install -f ${SERVER_DIRPATH}/pom.xml
+
+FROM maven:3.8.4-openjdk-17-slim
+
+ARG ARG_SERVER_DIRPATH
+ENV SERVER_DIRPATH ${ARG_SERVER_DIRPATH}
+
+ARG ARG_SERVER_JAR
+ENV SERVER_JAR ${ARG_SERVER_JAR}
+
+RUN mkdir -p ${SERVER_DIRPATH}/www
+
+# import the compiled .jar into the new docker image
+COPY --from=0 ${SERVER_DIRPATH}/target/ ${SERVER_DIRPATH}/
+
+COPY config.json ${SERVER_DIRPATH}/
+COPY www/ ${SERVER_DIRPATH}/www/
+
+# replace the relative path with the absolute path
+RUN sed -i "s|www|${SERVER_DIRPATH}/www|g" ${SERVER_DIRPATH}/config.json
+
+EXPOSE 3000
+
+CMD java -jar ${SERVER_DIRPATH}/${SERVER_JAR} -f ${SERVER_DIRPATH}/config.json
