@@ -17,13 +17,6 @@ jobs:
           eval `ssh-agent -s`
           ssh-add - <<< "${{ secrets.SERVER_DEPLOY }}"
           mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
           ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
-          if [ $(sudo ssh root@${{ secrets.SERVER_IP }} "docker ps -q -f name=website") ]; then
-                sudo ssh root@${{ secrets.SERVER_IP }} "docker kill website"
-                sudo ssh root@${{ secrets.SERVER_IP }} "docker rm website"
-          fi
-          sudo ssh root@${{ secrets.SERVER_IP }} "docker container prune --force"
-          sudo ssh root@${{ secrets.SERVER_IP }} "docker image prune --force --all"
-          sudo ssh root@${{ secrets.SERVER_IP }} "docker pull pragmaticfox/multi-threaded-java-web-server:latest"
-          sudo ssh root@${{ secrets.SERVER_IP }} "docker run -d -p 80:3000 --name website pragmaticfox/multi-threaded-java-web-server"
+          ssh root@${{ secrets.SERVER_IP }} "docker pull pragmaticfox/multi-threaded-java-web-server:latest"
+          ssh root@${{ secrets.SERVER_IP }} "docker run -d -p 80:3000 --name website pragmaticfox/multi-threaded-java-web-server"
