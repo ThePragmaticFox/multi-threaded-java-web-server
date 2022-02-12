@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - 'main'
-      
+  
 jobs:
   
   deploy:
@@ -17,8 +17,8 @@ jobs:
         run: |
           sudo apt-get update -y
           sudo apt-get install openssh-client -y
-          eval $(ssh-agent -s)
-          sudo ssh-add < echo secrets.SSH_PRIVATE_KEY
+          eval `ssh-agent -s`
+          ssh-add - <<< "${SSH_PRIVATE_KEY}"
           sudo mkdir -p ~/.ssh
           sudo chmod 700 ~/.ssh
           sudo ssh-keyscan secrets.SERVER_IP >> ~/.ssh/known_hosts
