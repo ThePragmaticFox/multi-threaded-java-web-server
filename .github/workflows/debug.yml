@@ -18,6 +18,5 @@ jobs:
           ssh-add - <<< "${{ secrets.SERVER_DEPLOY }}"
           mkdir -p ~/.ssh
           ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
-          sudo chmod 644 ~/.ssh/known_hosts
           sudo ssh -o StrictHostKeyChecking=no root@${{ secrets.SERVER_IP }} "docker pull pragmaticfox/multi-threaded-java-web-server:latest"
           sudo ssh -o StrictHostKeyChecking=no root@${{ secrets.SERVER_IP }} "docker run -d -p 80:3000 --name website pragmaticfox/multi-threaded-java-web-server"
