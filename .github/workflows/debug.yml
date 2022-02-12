@@ -11,13 +11,12 @@ jobs:
 
     runs-on: ubuntu-latest
     steps:
-      - uses: kielabokkie/ssh-key-and-known-hosts-action@v1
-        with:
-          ssh-private-key: ${{ secrets.SERVER_DEPLOY }}
-          ssh-host: ${{ secrets.SERVER_IP }}
       -
         shell: bash
         run: |
+          eval `ssh-agent -s`
+          ssh-add - <<< "${{ secrets.SERVER_DEPLOY }}"
+          ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
           if [ $(sudo ssh root@${{ secrets.SERVER_IP }} "docker ps -q -f name=website") ]; then
                 sudo ssh root@${{ secrets.SERVER_IP }} "docker kill website"
                 sudo ssh root@${{ secrets.SERVER_IP }} "docker rm website"
