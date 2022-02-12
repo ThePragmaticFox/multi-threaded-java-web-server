@@ -35,4 +35,36 @@ jobs:
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/multi-threaded-java-web-server:latest
           cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/multi-threaded-java-web-server:buildcache
           cache-to: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/simplewhale:buildcache,mode=max
+          
+          
+  deploy:
+
+    runs-on: ubuntu-latest
+
+    needs: build
+    
+    steps:
+      -
+        shell: bash
+        run: | 
+          apt-get update -y && apt-get install openssh-client -y
+          eval $(ssh-agent -s)
+          ssh-add <(echo secrets.SSH_PRIVATE_KEY)
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          ssh-keyscan secrets.SERVER_IP >> ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+      -
+        shell: bash
+        run: |
+            if [ $(ssh root@secrets.SERVER_IP "docker ps -q -f name=website") ]; then
+                ssh root@secrets.SERVER_IP "docker kill website"
+                ssh root@secrets.SERVER_IP "docker rm website"
+            fi
+            ssh root@secrets.SERVER_IP "docker container prune --force"
+            ssh root@secrets.SERVER_IP "docker image prune --force --all"
+            ssh root@secrets.SERVER_IP "docker pull pragmaticfox/multi-threaded-java-web-server:latest
+            ssh root@secrets.SERVER_IP "docker run -d -p 80:3000 --name website pragmaticfox/multi-threaded-java-web-server
+
+
     
