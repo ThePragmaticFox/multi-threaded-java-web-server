@@ -18,16 +18,16 @@ jobs:
           sudo apt-get update -y
           sudo apt-get install openssh-client -y
           eval `ssh-agent -s`
-          ssh-add - <<< secrets.SSH_PRIVATE_KEY
+          ssh-add - <<< ${{ secrets.SSH_PRIVATE_KEY }}
           sudo mkdir -p ~/.ssh
           sudo chmod 700 ~/.ssh
-          sudo ssh-keyscan secrets.SERVER_IP >> ~/.ssh/known_hosts
+          sudo ssh-keyscan   ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
           sudo chmod 644 ~/.ssh/known_hosts
-          if [ $(sudo ssh root@secrets.SERVER_IP "docker ps -q -f name=website") ]; then
-                sudo ssh root@secrets.SERVER_IP "docker kill website"
-                sudo ssh root@secrets.SERVER_IP "docker rm website"
+          if [ $(sudo ssh root@${{ secrets.SERVER_IP }} "docker ps -q -f name=website") ]; then
+                sudo ssh root@${{ secrets.SERVER_IP }} "docker kill website"
+                sudo ssh root@${{ secrets.SERVER_IP }} "docker rm website"
           fi
-          sudo ssh root@secrets.SERVER_IP "docker container prune --force"
-          sudo ssh root@secrets.SERVER_IP "docker image prune --force --all"
-          sudo ssh root@secrets.SERVER_IP "docker pull pragmaticfox/multi-threaded-java-web-server:latest
-          sudo ssh root@secrets.SERVER_IP "docker run -d -p 80:3000 --name website pragmaticfox/multi-threaded-java-web-server
+          sudo ssh root@${{ secrets.SERVER_IP }} "docker container prune --force"
+          sudo ssh root@${{ secrets.SERVER_IP }} "docker image prune --force --all"
+          sudo ssh root@${{ secrets.SERVER_IP }} "docker pull pragmaticfox/multi-threaded-java-web-server:latest
+          sudo ssh root@${{ secrets.SERVER_IP }} "docker run -d -p 80:3000 --name website pragmaticfox/multi-threaded-java-web-server
