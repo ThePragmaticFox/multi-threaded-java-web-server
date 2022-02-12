@@ -17,7 +17,7 @@ jobs:
         run: sudo apt-get update -y && sudo apt-get install openssh-client -y
       -
         shell: bash
-        run: sudo eval $(ssh-agent -s)
+        run: eval $(ssh-agent -s)
       -
         shell: bash
         run: sudo ssh-add <(echo secrets.SSH_PRIVATE_KEY)
