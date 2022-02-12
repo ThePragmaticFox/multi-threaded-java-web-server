@@ -14,9 +14,7 @@ jobs:
       -
         shell: bash
         run: |
-          sudo apt-get update
-          sudo apt-get install sshpass
-          sshpass -p {{ secrets.SERVER_TOKEN }} ssh root@${{ secrets.SERVER_IP }}
+          sshpass -p ${{ secrets.SERVER_TOKEN }} ssh root@${{ secrets.SERVER_IP }}
           docker pull pragmaticfox/multi-threaded-java-web-server:latest"
           docker run -d -p 80:3000 --name website pragmaticfox/multi-threaded-java-web-server"
           exit
