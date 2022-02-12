@@ -1,3 +1,11 @@
 {
-    "java.configuration.updateBuildConfiguration": "automatic"
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "java.project.sourcePaths": [
+        "web-server/src/main/java",
+        "web-server/src/main/java/com/server",
+        "web-server/src/main/java/com",
+        "web-server",
+        "web-server/src",
+        "web-server/src/main"
+    ]
 }

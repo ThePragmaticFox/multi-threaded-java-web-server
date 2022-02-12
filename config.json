@@ -1,0 +1,7 @@
+{
+    "root": "/home/dogo/multi-threaded-java-web-server/www",
+    "localIp": "localhost",
+    "port": 3000,
+    "queueSize": 100,
+    "nbPoolThreads": 2
+}
