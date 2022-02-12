@@ -14,25 +14,25 @@ jobs:
     steps:
       -
         shell: bash
-        run: apt-get update -y && apt-get install openssh-client -y
+        run: sudo apt-get update -y && apt-get install openssh-client -y
       -
         shell: bash
-        run: eval $(ssh-agent -s)
+        run: sudo eval $(ssh-agent -s)
       -
         shell: bash
-        run: ssh-add <(echo secrets.SSH_PRIVATE_KEY)
+        run: sudo ssh-add <(echo secrets.SSH_PRIVATE_KEY)
       -
         shell: bash
-        run: mkdir -p ~/.ssh
+        run: sudo mkdir -p ~/.ssh
       -
         shell: bash
-        run: chmod 700 ~/.ssh
+        run: sudo chmod 700 ~/.ssh
       -
         shell: bash
-        run: ssh-keyscan secrets.SERVER_IP >> ~/.ssh/known_hosts
+        run: sudo ssh-keyscan secrets.SERVER_IP >> ~/.ssh/known_hosts
       -
         shell: bash
-        run: chmod 644 ~/.ssh/known_hosts
+        run: sudo chmod 644 ~/.ssh/known_hosts
       -
         shell: bash
         run: |
