@@ -1,15 +1,22 @@
 package com.server;
 
 import static org.junit.Assert.assertEquals;
-
+import org.junit.BeforeClass;
 import org.junit.Test;
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
 
 public class TestWebServer {
 
+    private String root = "www";
+
+    @BeforeClass
+    public void setUpBeforeClass() {
+        root = System.getProperty("TestWebServerRoot");
+    }
+
     private WebServerConfig getWebServerConfig(int port) {
-        return new WebServerConfig("www", "0.0.0.0", port, 5, 2);
+        return new WebServerConfig(root, "0.0.0.0", port, 5, 2);
     }
 
     @Test

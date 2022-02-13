@@ -1,3 +1,4 @@
+ARG ARG_WWW_DIRPATH=/www
 ARG ARG_SERVER_DIRPATH=/server
 ARG ARG_SERVER_JAR=multi-threaded-java-web-server-0.1.jar
 
@@ -7,9 +8,17 @@ ENV DEBIAN_FRONTEND=noninteractive
 ARG ARG_SERVER_DIRPATH
 ENV SERVER_DIRPATH ${ARG_SERVER_DIRPATH}
 
+ARG ARG_WWW_DIRPATH
+ENV WWW_DIRPATH ${ARG_WWW_DIRPATH}
+
+RUN mkdir ${WWW_DIRPATH}
 RUN mkdir -p ${SERVER_DIRPATH}/src
+
+COPY www/ ${WWW_DIRPATH}/
 COPY src/ ${SERVER_DIRPATH}/src/
 COPY pom.xml ${SERVER_DIRPATH}/
+
+RUN sed -i "s|<value>www</value>|<value>${WWW_DIRPATH}</value>}|g" ${SERVER_DIRPATH}/pom.xml
 
 RUN mvn install -f ${SERVER_DIRPATH}/pom.xml
 
@@ -21,16 +30,19 @@ ENV SERVER_DIRPATH ${ARG_SERVER_DIRPATH}
 ARG ARG_SERVER_JAR
 ENV SERVER_JAR ${ARG_SERVER_JAR}
 
-RUN mkdir -p ${SERVER_DIRPATH}/www
+ARG ARG_WWW_DIRPATH
+ENV WWW_DIRPATH ${ARG_WWW_DIRPATH}
 
+RUN mkdir ${WWW_DIRPATH}
+RUN mkdir ${SERVER_DIRPATH}
+
+COPY www/ ${WWW_DIRPATH}/
+COPY config.json ${SERVER_DIRPATH}/
 # import the compiled .jar into the new docker image
 COPY --from=0 ${SERVER_DIRPATH}/target/ ${SERVER_DIRPATH}/
 
-COPY config.json ${SERVER_DIRPATH}/
-COPY www/ ${SERVER_DIRPATH}/www/
-
 # replace the relative path with the absolute path
-RUN sed -i "s|www|${SERVER_DIRPATH}/www|g" ${SERVER_DIRPATH}/config.json
+RUN sed -i "s|www|${WWW_DIRPATH}|g" ${SERVER_DIRPATH}/config.json
 
 EXPOSE 3000
 
