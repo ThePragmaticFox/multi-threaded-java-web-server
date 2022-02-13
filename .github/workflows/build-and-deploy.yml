@@ -50,7 +50,7 @@ jobs:
           ssh-add - <<< "${{ secrets.SERVER_DEPLOY }}"
           mkdir -p ~/.ssh
           ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
-          if [ $(root@${{ secrets.SERVER_IP }} "docker ps -q -f name=website") ]; then
+          if [ $(ssh root@${{ secrets.SERVER_IP }} "docker ps -q -f name=website") ]; then
               ssh root@${{ secrets.SERVER_IP }} "docker kill website"
               ssh root@${{ secrets.SERVER_IP }} "docker rm website"
           fi
