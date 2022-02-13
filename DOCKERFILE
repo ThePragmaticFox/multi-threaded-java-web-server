@@ -18,6 +18,7 @@ COPY www/ ${WWW_DIRPATH}/
 COPY src/ ${SERVER_DIRPATH}/src/
 COPY pom.xml ${SERVER_DIRPATH}/
 
+# specify correct www folder for the unit tests
 RUN sed -i "s|<value>www</value>|<value>${WWW_DIRPATH}</value>}|g" ${SERVER_DIRPATH}/pom.xml
 
 RUN mvn install -f ${SERVER_DIRPATH}/pom.xml
@@ -38,11 +39,18 @@ RUN mkdir ${SERVER_DIRPATH}
 
 COPY www/ ${WWW_DIRPATH}/
 COPY config.json ${SERVER_DIRPATH}/
+
 # import the compiled .jar into the new docker image
 COPY --from=0 ${SERVER_DIRPATH}/target/ ${SERVER_DIRPATH}/
 
-# replace the relative path with the absolute path
+# specify correct www folder for deployment
 RUN sed -i "s|www|${WWW_DIRPATH}|g" ${SERVER_DIRPATH}/config.json
+
+RUN --mount=type=secret,id=WEBSITE_SECRET
+RUN export WEBSITE_SECRET=$(cat /run/secrets/WEBSITE_SECRET)
+
+# a little secret for those whom it may concern
+RUN sed -i "s|<p>This is the About Page.</p>|<p>${WEBSITE_SECRET}</p>}|g" ${WWW_DIRPATH}/about/index.html
 
 EXPOSE 3000
 
