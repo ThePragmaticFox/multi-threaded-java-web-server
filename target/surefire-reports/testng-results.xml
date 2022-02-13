@@ -1,11 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testng-results ignored="0" total="0" passed="0" failed="0" skipped="0">
+<testng-results ignored="0" total="9" passed="9" failed="0" skipped="0">
   <reporter-output>
   </reporter-output>
-  <suite started-at="2022-02-12T21:59:40 CET" name="com.server.TestWebServer" finished-at="2022-02-12T21:59:40 CET" duration-ms="5">
+  <suite started-at="2022-02-13T09:54:37 CET" name="Surefire suite" finished-at="2022-02-13T09:54:38 CET" duration-ms="748">
     <groups>
     </groups>
-    <test started-at="2022-02-12T21:59:40 CET" name="Command line test" finished-at="2022-02-12T21:59:40 CET" duration-ms="5">
-    </test> <!-- Command line test -->
-  </suite> <!-- com.server.TestWebServer -->
+    <test started-at="2022-02-13T09:54:37 CET" name="Surefire test" finished-at="2022-02-13T09:54:38 CET" duration-ms="748">
+      <class name="com.server.TestWebServer">
+        <test-method signature="requestDELETEShouldFail()" started-at="2022-02-13T09:54:38 CET" name="requestDELETEShouldFail" finished-at="2022-02-13T09:54:38 CET" duration-ms="571" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- requestDELETEShouldFail -->
+        <test-method signature="requestPUTShouldFail()" started-at="2022-02-13T09:54:38 CET" name="requestPUTShouldFail" finished-at="2022-02-13T09:54:38 CET" duration-ms="550" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- requestPUTShouldFail -->
+        <test-method signature="requestHEADExistingShouldSucceed()" started-at="2022-02-13T09:54:38 CET" name="requestHEADExistingShouldSucceed" finished-at="2022-02-13T09:54:38 CET" duration-ms="655" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- requestHEADExistingShouldSucceed -->
+        <test-method signature="requestPATCHShouldFail()" started-at="2022-02-13T09:54:38 CET" name="requestPATCHShouldFail" finished-at="2022-02-13T09:54:38 CET" duration-ms="590" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- requestPATCHShouldFail -->
+        <test-method signature="requestGETExistingShouldSucceed()" started-at="2022-02-13T09:54:38 CET" name="requestGETExistingShouldSucceed" finished-at="2022-02-13T09:54:38 CET" duration-ms="625" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- requestGETExistingShouldSucceed -->
+        <test-method signature="requestPOSTShouldFail()" started-at="2022-02-13T09:54:38 CET" name="requestPOSTShouldFail" finished-at="2022-02-13T09:54:38 CET" duration-ms="702" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- requestPOSTShouldFail -->
+        <test-method signature="requestHEADNonExistingShouldFail()" started-at="2022-02-13T09:54:38 CET" name="requestHEADNonExistingShouldFail" finished-at="2022-02-13T09:54:38 CET" duration-ms="714" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- requestHEADNonExistingShouldFail -->
+        <test-method signature="requestOPTIONSShouldFail()" started-at="2022-02-13T09:54:38 CET" name="requestOPTIONSShouldFail" finished-at="2022-02-13T09:54:38 CET" duration-ms="686" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- requestOPTIONSShouldFail -->
+        <test-method signature="requestGETNonExistingShouldFail()" started-at="2022-02-13T09:54:38 CET" name="requestGETNonExistingShouldFail" finished-at="2022-02-13T09:54:38 CET" duration-ms="669" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- requestGETNonExistingShouldFail -->
+      </class> <!-- com.server.TestWebServer -->
+    </test> <!-- Surefire test -->
+  </suite> <!-- Surefire suite -->
 </testng-results>
