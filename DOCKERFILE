@@ -48,8 +48,9 @@ RUN sed -i "s|www|${WWW_DIRPATH}|g" ${SERVER_DIRPATH}/config.json
 
 # a little secret for those it may concern
 RUN --mount=type=secret,id=WEBSITE_SECRET \
-    export WEBSITE_SECRET=$(cat /run/secrets/WEBSITE_SECRET) \
-    sed -i "s|<p>This is the About Page.</p>|<p>${WEBSITE_SECRET}</p>|g" ${WWW_DIRPATH}/about/index.html
+    export WEBSITE_SECRET=$(cat /run/secrets/WEBSITE_SECRET)
+
+RUN sed -i "s|<p>This is the About Page.</p>|<p>${WEBSITE_SECRET}</p>|g" ${WWW_DIRPATH}/about/index.html
 
 EXPOSE 3000
 
