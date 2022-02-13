@@ -29,7 +29,6 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ./
-          secrets: "WEBSITE_SECRET=${{ secrets.WEBSITE_SECRET }}"
           file: ./DOCKERFILE
           builder: ${{ steps.buildx.outputs.name }}
           push: true
