@@ -24,3 +24,12 @@ hs_err_pid*
 
 # maven build
 target
+
+# vscode settings
+.vscode
+
+# python cache
+__pycache__
+
+# build artifact
+dependency-reduced-pom.xml
