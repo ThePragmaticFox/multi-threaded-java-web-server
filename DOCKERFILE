@@ -46,11 +46,10 @@ COPY --from=0 ${SERVER_DIRPATH}/target/ ${SERVER_DIRPATH}/
 # specify correct www folder for deployment
 RUN sed -i "s|www|${WWW_DIRPATH}|g" ${SERVER_DIRPATH}/config.json
 
-RUN --mount=type=secret,id=WEBSITE_SECRET
-RUN export WEBSITE_SECRET=$(cat /run/secrets/WEBSITE_SECRET)
-
-# a little secret for those whom it may concern
-RUN sed -i "s|<p>This is the About Page.</p>|<p>${WEBSITE_SECRET}</p>}|g" ${WWW_DIRPATH}/about/index.html
+# a little secret for those it may concern
+RUN --mount=type=secret,id=WEBSITE_SECRET \
+    export WEBSITE_SECRET=$(cat /run/secrets/WEBSITE_SECRET) \
+    sed -i "s|<p>This is the About Page.</p>|<p>${WEBSITE_SECRET}</p>|g" ${WWW_DIRPATH}/about/index.html
 
 EXPOSE 3000
 
