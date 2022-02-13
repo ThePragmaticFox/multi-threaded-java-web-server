@@ -19,7 +19,7 @@ public class TestWebServer {
     }
 
     private WebServerConfig getWebServerConfig(int port) {
-        return new WebServerConfig(root, "0.0.0.0", port, 5, 250);
+        return new WebServerConfig(root, "0.0.0.0", port, 250);
     }
 
     @Test

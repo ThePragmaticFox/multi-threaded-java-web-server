@@ -11,24 +11,18 @@ public class WebServerConfig {
     private final String root;
     private final String host;
     private final int port;
-    private final long queueSize;
     private final int nbPoolThreads;
 
     public WebServerConfig(final String root, final String host, final int port,
-            final long queueSize, final int nbPoolThreads) {
+            final int nbPoolThreads) {
         this.root = root;
         this.host = host;
         this.port = port;
-        this.queueSize = queueSize;
         this.nbPoolThreads = nbPoolThreads;
     }
 
     public int getNbPoolThreads() {
         return nbPoolThreads;
-    }
-
-    public long getQueueSize() {
-        return queueSize;
     }
 
     public int getPort() {
