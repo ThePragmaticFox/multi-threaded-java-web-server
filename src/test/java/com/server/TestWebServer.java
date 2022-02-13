@@ -1,7 +1,7 @@
 package com.server;
 
 import static org.junit.Assert.assertEquals;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
@@ -10,13 +10,16 @@ public class TestWebServer {
 
     private String root = "www";
 
-    @BeforeClass
+    @Before
     public void setUpBeforeClass() {
-        root = System.getProperty("TestWebServerRoot");
+        final String localRoot = System.getProperty("TestWebServerRoot");
+        if (localRoot != null) {
+            root = localRoot;
+        }
     }
 
     private WebServerConfig getWebServerConfig(int port) {
-        return new WebServerConfig(root, "0.0.0.0", port, 5, 2);
+        return new WebServerConfig(root, "0.0.0.0", port, 5, 250);
     }
 
     @Test

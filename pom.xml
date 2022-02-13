@@ -13,15 +13,12 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <version>2.22.0</version>
         <configuration>
+          <systemPropertyVariables>
+            <TestWebServerRoot>www</TestWebServerRoot>
+          </systemPropertyVariables>
           <additionalClasspathElements>
             <additionalClasspathElement>src/test/java</additionalClasspathElement>
           </additionalClasspathElements>
-          <systemProperties>
-            <property>
-                <name>TestWebServerRoot</name>
-                <value>www</value>
-            </property>
-        </systemProperties>
         </configuration>
       </plugin>
       <plugin>

@@ -19,7 +19,7 @@ COPY src/ ${SERVER_DIRPATH}/src/
 COPY pom.xml ${SERVER_DIRPATH}/
 
 # specify correct www folder for the unit tests
-RUN sed -i "s|<value>www</value>|<value>${WWW_DIRPATH}</value>}|g" ${SERVER_DIRPATH}/pom.xml
+RUN sed -i "s|<TestWebServerRoot>www</TestWebServerRoot>|<TestWebServerRoot>${WWW_DIRPATH}</TestWebServerRoot>}|g" ${SERVER_DIRPATH}/pom.xml
 
 RUN mvn install -f ${SERVER_DIRPATH}/pom.xml
 
