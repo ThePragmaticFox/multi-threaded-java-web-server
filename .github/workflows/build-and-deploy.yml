@@ -34,7 +34,7 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/multi-threaded-java-web-server:latest
           cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/multi-threaded-java-web-server:buildcache
-          cache-to: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/simplewhale:buildcache,mode=max
+          cache-to: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/multi-threaded-java-web-server:buildcache,mode=max
 
   deploy:
 
