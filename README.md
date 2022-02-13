@@ -34,10 +34,12 @@ There's a very small [loadTest.py](scripts/loadTest.py) script in the repository
 > locust -f scripts/loadTest.py 
 
 To run multi-threaded use the following, in different processes:
+
 > locust -f scripts/loadTest.py --master
+
 > locust -f scripts/loadTest.py --worker
 
-An example [Locust report](http://65.21.145.57/report/) was made using the tool for the [test website](http://65.21.145.57/) running on this server.
+An example [Locust report](http://65.21.145.57/report/) was made using the tool for the test website running on this server.
 
 The [GitHub Actions CI/CD](.github/workflows/build-and-deploy.yml) does the following steps:
 
