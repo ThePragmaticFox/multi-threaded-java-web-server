@@ -3,27 +3,13 @@
 
 ## Usage
 
-Specify a [config.json](config.json) in the following format:
-
-```
-{
-	"root": "www",
-	"host": "0.0.0.0",
-	"port": 3000,
-	"nbPoolThreads": 250
-}
-```
-
-If the config.json is in the same directory as the .jar file, then it will be automatically found.
-
-Otherwise provide a path parameter:
+If the [config.json](config.json) is in the same directory as the .jar file, then it will be automatically found. Otherwise provide a path parameter:
 
 > java -jar multi-threaded-java-web-server-0.1.jar -f path/to/config.json
 
-
 ## Details
 
-This web server is built on top of [Javalin](https://javalin.io/), which is built on top of [Jetty](https://www.eclipse.org/jetty/). We wrap our own server class around, set up a [QueuedThreadPool](https://www.eclipse.org/jetty/javadoc/jetty-9/org/eclipse/jetty/util/thread/QueuedThreadPool.html), provide the config.json parameters and are good to go.
+TODO - describe server implementation
 
 Since we're only interested in serving static files from a pre-specified root folder for the time being, we disallow any HTTP methods for the exception of GET and HEAD. These are then tested to verify correct behaviour and that sensible HTTP Error Codes are returned to the client.
 
