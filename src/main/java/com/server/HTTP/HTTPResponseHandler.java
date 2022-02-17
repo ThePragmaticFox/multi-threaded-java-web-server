@@ -20,44 +20,47 @@ public class HTTPResponseHandler {
         }
     }
 
-    private static void processContentType(final HTTPFileExtension ext, final HTTPOutputStream out)
-            throws IOException {
+    private static void processContentType(final HTTPFileExtension ext,
+            final HTTPOutputStream outputStream) throws IOException {
         switch (ext) {
             case TXT:
-                out.write("Content-Type: text/plain".getBytes());
+                outputStream.write("Content-Type: text/plain".getBytes());
             case CSS:
-                out.write("Content-Type: text/css".getBytes());
+                outputStream.write("Content-Type: text/css".getBytes());
                 break;
             case HTML:
-                out.write("Content-Type: text/html".getBytes());
+                outputStream.write("Content-Type: text/html".getBytes());
                 break;
             case JPEG:
-                out.write("Content-Type: image/jpeg".getBytes());
+                outputStream.write("Content-Type: image/jpeg".getBytes());
                 break;
             case JPG:
-                out.write("Content-Type: image/jpg".getBytes());
+                outputStream.write("Content-Type: image/jpg".getBytes());
                 break;
             case JS:
-                out.write("Content-Type: text/javascript".getBytes());
+                outputStream.write("Content-Type: text/javascript".getBytes());
                 break;
             case PNG:
-                out.write("Content-Type: image/png".getBytes());
+                outputStream.write("Content-Type: image/png".getBytes());
                 break;
             case SVG:
-                out.write("Content-Type: image/svg".getBytes());
+                outputStream.write("Content-Type: image/svg".getBytes());
                 break;
             case TS:
-                out.write("Content-Type: text/typescript".getBytes());
+                outputStream.write("Content-Type: text/typescript".getBytes());
                 break;
             case JSON:
-                out.write("Content-Type: text/json".getBytes());
+                outputStream.write("Content-Type: text/json".getBytes());
                 break;
             case UNKNOWN:
                 return;
             default:
-                throw new IllegalStateException("The File Extension <<" + ext + ">> hasn't been implemented.");
+                throw new IllegalStateException(
+                        "The File Extension <<" + ext + ">> hasn't been implemented.");
         }
-        out.write("\n".getBytes());
+        // recommended security header
+        outputStream.write("X-Content-Type-Options: nosniff".getBytes());
+        outputStream.write("\n".getBytes());
     }
 
     private static boolean handleGET(final HTTPHeader header, final HTTPOutputStream outputStream) {
@@ -85,8 +88,6 @@ public class HTTPResponseHandler {
             outputStream.write(String
                     .format("Content-Length: " + header.getPath().toFile().length()).getBytes());
             outputStream.write("\n".getBytes());
-            // recommended security header
-            outputStream.write("X-Content-Type-Options: nosniff".getBytes());
             outputStream.write("\n".getBytes());
             outputStream.write("Connection: close".getBytes());
             outputStream.write("\r\n\r\n".getBytes());
