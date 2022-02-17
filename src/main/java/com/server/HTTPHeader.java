@@ -5,10 +5,10 @@ import java.nio.file.Path;
 public class HTTPHeader {
 
     private final Path path;
-    private final String method;
+    private final HTTPMethod method;
     private final HTTPVersion version;
 
-    public HTTPHeader(final Path path, final String method, final HTTPVersion version) {
+    public HTTPHeader(final Path path, final HTTPMethod method, final HTTPVersion version) {
         this.path = path;
         this.method = method;
         this.version = version;
@@ -18,7 +18,7 @@ public class HTTPHeader {
         return path;
     }
 
-    public String getMethod() {
+    public HTTPMethod getMethod() {
         return method;
     }
 
