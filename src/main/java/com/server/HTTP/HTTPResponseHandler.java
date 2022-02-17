@@ -7,8 +7,7 @@ import java.io.IOException;
 
 public class HTTPResponseHandler {
 
-    public static boolean getResponse(final HTTPHeader header,
-            final HTTPOutputStream outputStream) {
+    public static boolean getResponse(final HTTPHeader header, final HTTPOutputStream outputStream) {
         switch (header.getMethod()) {
             case GET:
                 return handleGET(header, outputStream);
@@ -20,59 +19,28 @@ public class HTTPResponseHandler {
         }
     }
 
-    private static void processContentType(final HTTPFileExtension ext,
-            final HTTPOutputStream outputStream) throws IOException {
-        switch (ext) {
-            case TXT:
-                outputStream.write("Content-Type: text/plain".getBytes());
-            case CSS:
-                outputStream.write("Content-Type: text/css".getBytes());
-                break;
-            case HTML:
-                outputStream.write("Content-Type: text/html".getBytes());
-                break;
-            case JPEG:
-                outputStream.write("Content-Type: image/jpeg".getBytes());
-                break;
-            case JPG:
-                outputStream.write("Content-Type: image/jpg".getBytes());
-                break;
-            case JS:
-                outputStream.write("Content-Type: text/javascript".getBytes());
-                break;
-            case PNG:
-                outputStream.write("Content-Type: image/png".getBytes());
-                break;
-            case SVG:
-                outputStream.write("Content-Type: image/svg".getBytes());
-                break;
-            case TS:
-                outputStream.write("Content-Type: text/typescript".getBytes());
-                break;
-            case JSON:
-                outputStream.write("Content-Type: text/json".getBytes());
-                break;
-            case UNKNOWN:
-                return;
-            default:
-                throw new IllegalStateException(
-                        "The File Extension <<" + ext + ">> hasn't been implemented.");
+    private static void processContentType(final HTTPFileExtension ext, final HTTPOutputStream outputStream)
+            throws IOException {
+        if (ext.equals(HTTPFileExtension.UNKNOWN)) {
+            return;
         }
-        // recommended security header
-        outputStream.write("X-Content-Type-Options: nosniff".getBytes());
-        outputStream.write("\n".getBytes());
+        outputStream.write(ext.getBytes());
+        outputStream.write(HTTPConstants.NEWLINE.getBytes());
+        // recommended security header if file extension is known
+        outputStream.write(HTTPConstants.NO_SNIFF.getBytes());
+        outputStream.write(HTTPConstants.NEWLINE.getBytes());
     }
 
     private static boolean handleGET(final HTTPHeader header, final HTTPOutputStream outputStream) {
         final File file = header.getPath().toFile();
         if (!file.exists()) {
             try {
-                outputStream.write("HTTP/1.1 404 Not Found".getBytes());
-                outputStream.write("\n".getBytes());
-                outputStream.write("Connection: close".getBytes());
-                outputStream.write("\r\n".getBytes());
-            } catch (IOException e) {
-                e.printStackTrace();
+                outputStream.write(HTTPConstants.NOT_FOUND.getBytes());
+                outputStream.write(HTTPConstants.NEWLINE.getBytes());
+                outputStream.write(HTTPConstants.CONNECTION_CLOSE.getBytes());
+                outputStream.write(HTTPConstants.NEW_EMPTYLINE.getBytes());
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
             }
             return true;
         }
@@ -80,33 +48,30 @@ public class HTTPResponseHandler {
             return false;
         }
         try {
-            outputStream.write("HTTP/1.1 200 OK".getBytes());
-            outputStream.write("\n".getBytes());
-            processContentType(
-                    HTTPFileExtension.get(FilenameUtils.getExtension(header.getPath().toString())),
+            outputStream.write(HTTPConstants.OK.getBytes());
+            outputStream.write(HTTPConstants.NEWLINE.getBytes());
+            processContentType(HTTPFileExtension.get(FilenameUtils.getExtension(header.getPath().toString())),
                     outputStream);
-            outputStream.write(String
-                    .format("Content-Length: " + header.getPath().toFile().length()).getBytes());
-            outputStream.write("\n".getBytes());
-            outputStream.write("\n".getBytes());
-            outputStream.write("Connection: close".getBytes());
-            outputStream.write("\r\n\r\n".getBytes());
+            outputStream.write(HTTPConstants.CONTENT_LENGTH.getBytes());
+            outputStream.write(Long.toString(header.getPath().toFile().length()).getBytes());
+            outputStream.write(HTTPConstants.NEWLINE.getBytes());
+            outputStream.write(HTTPConstants.CONNECTION_CLOSE.getBytes());
+            outputStream.write(HTTPConstants.NEW_EMPTYLINE.getBytes());
             Files.copy(header.getPath(), outputStream.get());
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
         }
         return true;
     }
 
-    private static boolean handleUNKNOWN(final HTTPHeader header,
-            final HTTPOutputStream outputStream) {
+    private static boolean handleUNKNOWN(final HTTPHeader header, final HTTPOutputStream outputStream) {
         try {
-            outputStream.write("HTTP/1.1 501 Not Implemented".getBytes());
-            outputStream.write("\n".getBytes());
-            outputStream.write("Connection: close".getBytes());
-            outputStream.write("\r\n".getBytes());
-        } catch (IOException e) {
-            e.printStackTrace();
+            outputStream.write(HTTPConstants.NOT_IMPLEMENTED.getBytes());
+            outputStream.write(HTTPConstants.NEWLINE.getBytes());
+            outputStream.write(HTTPConstants.CONNECTION_CLOSE.getBytes());
+            outputStream.write(HTTPConstants.NEW_EMPTYLINE.getBytes());
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
         }
         return true;
     }

@@ -1,7 +1,5 @@
 package com.server.HTTP;
 
-import java.io.InputStreamReader;
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.Socket;
 import java.nio.file.Path;
@@ -22,45 +20,47 @@ public class HTTPRequestHandler {
         this.webServerConfig = webServerConfig;
     }
 
+    private List<String> readHeader(final HTTPInputStream inputStream) throws IOException {
+        final List<String> headerLines = new ArrayList<>();
+        String inputLine = inputStream.readLine();
+        while (inputLine != null && inputLine.length() > 0) {
+            headerLines.add(inputLine);
+            inputLine = inputStream.readLine();
+        }
+        return headerLines;
+    }
+
     public void handle() {
         try {
-            final BufferedReader inputStream =
-                    new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            final HTTPOutputStream outputStream =
-                    new HTTPOutputStream(clientSocket.getOutputStream());
+            final HTTPInputStream inputStream = new HTTPInputStream(clientSocket.getInputStream());
+            final HTTPOutputStream outputStream = new HTTPOutputStream(clientSocket.getOutputStream());
 
-            final List<String> headerLines = new ArrayList<>();
-            String inputLine = inputStream.readLine();
-            while (inputLine != null && inputLine.length() > 0) {
-                headerLines.add(inputLine);
-                inputLine = inputStream.readLine();
-            }
-
-            // We only care about the header, the body is simply ignored
+            // Only header is relevant, the body is ignored.
+            final List<String> headerLines = readHeader(inputStream);
 
             parseHeader(headerLines).ifPresentOrElse(header -> {
                 try {
                     if (!handleResponse(header, outputStream)) {
-                        outputStream.write("HTTP/1.1 500 Internal Server Error".getBytes());
-                        outputStream.write("\n".getBytes());
-                        outputStream.write("Connection: close".getBytes());
-                        outputStream.write("\r\n".getBytes());
+                        outputStream.write(HTTPConstants.INTERNAL_SERVER_ERROR.getBytes());
+                        outputStream.write(HTTPConstants.NEWLINE.getBytes());
+                        outputStream.write(HTTPConstants.CONNECTION_CLOSE.getBytes());
+                        outputStream.write(HTTPConstants.NEW_EMPTYLINE.getBytes());
                     }
-                } catch (IOException e) {
-                    e.printStackTrace();
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
                 }
 
             }, () -> {
                 try {
-                    outputStream.write("HTTP/1.1 400 Bad Request".getBytes());
-                    outputStream.write("\n".getBytes());
-                    outputStream.write("Connection: close".getBytes());
-                    outputStream.write("\r\n".getBytes());
-                } catch (IOException e) {
-                    e.printStackTrace();
+                    outputStream.write(HTTPConstants.BAD_REQUEST.getBytes());
+                    outputStream.write(HTTPConstants.NEWLINE.getBytes());
+                    outputStream.write(HTTPConstants.CONNECTION_CLOSE.getBytes());
+                    outputStream.write(HTTPConstants.NEW_EMPTYLINE.getBytes());
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
                 }
             });
-            outputStream.flush();
+            // outputStream.flush();
             outputStream.close();
             inputStream.close();
             clientSocket.close();
@@ -69,19 +69,19 @@ public class HTTPRequestHandler {
         }
     }
 
-    private boolean handleResponse(final HTTPHeader header, final HTTPOutputStream outputStream)
-            throws IOException {
+    private boolean handleResponse(final HTTPHeader header, final HTTPOutputStream outputStream) throws IOException {
         switch (header.getVersion()) {
             case HTTP_1_1:
                 return HTTPResponseHandler.getResponse(header, outputStream);
             case UNKNOWN:
-                outputStream.write("HTTP/1.1 505 HTTP Version Not Supported".getBytes());
-                outputStream.write("\n".getBytes());
-                outputStream.write("Connection: close".getBytes());
-                outputStream.write("\r\n".getBytes());
+                outputStream.write(HTTPConstants.HTTP_VERSION_NOT_SUPPORTED.getBytes());
+                outputStream.write(HTTPConstants.NEWLINE.getBytes());
+                outputStream.write(HTTPConstants.CONNECTION_CLOSE.getBytes());
+                outputStream.write(HTTPConstants.NEW_EMPTYLINE.getBytes());
                 return true;
             default:
-                throw new IllegalStateException(header.getVersion() + " has not been implented");
+                throw new IllegalStateException(
+                        "The HTTPVersion <<" + header.getVersion() + ">> has not been implented");
         }
     }
 
@@ -90,14 +90,14 @@ public class HTTPRequestHandler {
             return Optional.empty();
         }
         // Only interested in the first line, containing method, path and version
-        final String[] contents = Arrays.stream(headerLines.get(0).split(" "))
-                .map(content -> content.trim()).toArray(String[]::new);
+        final String[] contents =
+                Arrays.stream(headerLines.get(0).split(" ")).map(content -> content.trim()).toArray(String[]::new);
         if (contents.length != 3) {
             return Optional.empty();
         }
         final HTTPMethod method = HTTPMethod.getHTTPMethod(contents[0]);
-        final String filePath = contents[1].contains(".") ? contents[1]
-                : (contents[1] + "/index.html").replace("//", "/");
+        final String filePath =
+                contents[1].contains(".") ? contents[1] : (contents[1] + "/index.html").replace("//", "/");
         final Path path = Paths.get(webServerConfig.getRoot() + filePath);
         final HTTPVersion version = HTTPVersion.getHTTPVersion(contents[2]);
         final HTTPHeader header = new HTTPHeader(path, method, version);

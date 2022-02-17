@@ -4,31 +4,26 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-/**
- * wrapper class, so we can debug the output more conveniently.
- */
-
 public class HTTPOutputStream {
 
-    private final BufferedOutputStream outputStream;
+    private final OutputStream outputStream;
+    private final BufferedOutputStream bufferedOutputStream;
 
     public HTTPOutputStream(final OutputStream outputStream) {
-        this.outputStream = new BufferedOutputStream(outputStream);
+        this.outputStream = outputStream;
+        this.bufferedOutputStream = new BufferedOutputStream(outputStream);
     }
 
-    public OutputStream get() {
-        return outputStream;
+    public BufferedOutputStream get() {
+        return bufferedOutputStream;
     }
 
     public void write(byte[] arg0) throws IOException {
-        outputStream.write(arg0);
-    }
-
-    public void flush() throws IOException {
-        outputStream.flush();
+        bufferedOutputStream.write(arg0);
     }
 
     public void close() throws IOException {
+        bufferedOutputStream.close();
         outputStream.close();
     }
 }
