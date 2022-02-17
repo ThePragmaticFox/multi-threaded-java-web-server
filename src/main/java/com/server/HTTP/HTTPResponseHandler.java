@@ -85,6 +85,9 @@ public class HTTPResponseHandler {
             outputStream.write(String
                     .format("Content-Length: " + header.getPath().toFile().length()).getBytes());
             outputStream.write("\n".getBytes());
+            // recommended security header
+            outputStream.write("X-Content-Type-Options: nosniff".getBytes());
+            outputStream.write("\n".getBytes());
             outputStream.write("Connection: close".getBytes());
             outputStream.write("\r\n\r\n".getBytes());
             Files.copy(header.getPath(), outputStream.get());
