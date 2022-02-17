@@ -1,5 +1,6 @@
 package com.server.HTTP;
 
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -9,10 +10,10 @@ import java.io.OutputStream;
 
 public class HTTPOutputStream {
 
-    private final OutputStream outputStream;
+    private final BufferedOutputStream outputStream;
 
     public HTTPOutputStream(final OutputStream outputStream) {
-        this.outputStream = outputStream;
+        this.outputStream = new BufferedOutputStream(outputStream);
     }
 
     public OutputStream get() {

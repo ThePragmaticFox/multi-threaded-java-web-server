@@ -48,4 +48,4 @@ RUN sed -i "s|www|${WWW_DIRPATH}|g" ${SERVER_DIRPATH}/config.json
 
 EXPOSE 3000
 
-CMD java -jar ${SERVER_DIRPATH}/${SERVER_JAR} -f ${SERVER_DIRPATH}/config.json
+ENTRYPOINT java -jar ${SERVER_DIRPATH}/${SERVER_JAR} -f ${SERVER_DIRPATH}/config.json
