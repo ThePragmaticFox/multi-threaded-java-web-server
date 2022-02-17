@@ -31,7 +31,7 @@ public class HTTPRequestHandler {
 
             final List<String> headerLines = new ArrayList<>();
             String inputLine = inputStream.readLine();
-            while (inputLine.length() > 0) {
+            while (inputLine != null && inputLine.length() > 0) {
                 headerLines.add(inputLine);
                 inputLine = inputStream.readLine();
             }
