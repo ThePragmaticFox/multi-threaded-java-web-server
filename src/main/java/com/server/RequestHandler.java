@@ -3,10 +3,7 @@ package com.server;
 import java.io.InputStreamReader;
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -18,26 +15,22 @@ public class RequestHandler {
 
     private final Socket clientSocket;
     private final WebServerConfig webServerConfig;
-    private final HTTPResponseHandler responseHandler;
 
-    public RequestHandler(final Socket clientSocket, final WebServerConfig webServerConfig,
-            final HTTPResponseHandler responseHandler) {
+    public RequestHandler(final Socket clientSocket, final WebServerConfig webServerConfig) {
         this.clientSocket = clientSocket;
         this.webServerConfig = webServerConfig;
-        this.responseHandler = responseHandler;
     }
 
     public void handle() {
         try {
             final BufferedReader inputStream =
                     new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            final StringWriter stringWriter = new StringWriter();
-            final PrintWriter outputStream = new PrintWriter(stringWriter);
+            final HTTPOutputStream outputStream =
+                    new HTTPOutputStream(clientSocket.getOutputStream());
 
             final List<String> headerLines = new ArrayList<>();
             String inputLine = inputStream.readLine();
             while (inputLine.length() > 0) {
-                System.out.println(inputLine);
                 headerLines.add(inputLine);
                 inputLine = inputStream.readLine();
             }
@@ -45,21 +38,29 @@ public class RequestHandler {
             // We only care about the header, the body is simply ignored
 
             parseHeader(headerLines).ifPresentOrElse(header -> {
-                if (!handleResponse(header, outputStream)) {
-                    outputStream.print("HTTP/1.1 500 Internal Server Error" + "\n");
-                    outputStream.print("Connection: close" + "\r\n");
+                try {
+                    if (!handleResponse(header, outputStream)) {
+                        outputStream.write("HTTP/1.1 500 Internal Server Error".getBytes());
+                        outputStream.write("\n".getBytes());
+                        outputStream.write("Connection: close".getBytes());
+                        outputStream.write("\r\n".getBytes());
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
+
             }, () -> {
-                outputStream.print("HTTP/1.1 400 Bad Request" + "\n");
-                outputStream.print("Connection: close" + "\r\n");
+                try {
+                    outputStream.write("HTTP/1.1 400 Bad Request".getBytes());
+                    outputStream.write("\n".getBytes());
+                    outputStream.write("Connection: close".getBytes());
+                    outputStream.write("\r\n".getBytes());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             });
-
-            final String outputString = stringWriter.toString();
-
-            clientSocket.getOutputStream().write(outputString.getBytes(StandardCharsets.UTF_8));
+            outputStream.flush();
             outputStream.close();
-
-            clientSocket.getOutputStream().close();
             inputStream.close();
             clientSocket.close();
         } catch (IOException ioException) {
@@ -67,13 +68,16 @@ public class RequestHandler {
         }
     }
 
-    private boolean handleResponse(final HTTPHeader header, final PrintWriter outputStream) {
+    private boolean handleResponse(final HTTPHeader header, final HTTPOutputStream outputStream)
+            throws IOException {
         switch (header.getVersion()) {
             case HTTP_1_1:
-                return responseHandler.getResponse(HTTPMethod.parseMethod(header, outputStream));
+                return HTTPResponseHandler.getResponse(header, outputStream);
             case UNKNOWN:
-                outputStream.print("HTTP/1.1 505 HTTP Version Not Supported" + "\n");
-                outputStream.print("Connection: close" + "\r\n");
+                outputStream.write("HTTP/1.1 505 HTTP Version Not Supported".getBytes());
+                outputStream.write("\n".getBytes());
+                outputStream.write("Connection: close".getBytes());
+                outputStream.write("\r\n".getBytes());
                 return true;
             default:
                 throw new IllegalStateException(header.getVersion() + " has not been implented");
@@ -90,12 +94,11 @@ public class RequestHandler {
         if (contents.length != 3) {
             return Optional.empty();
         }
-        final String method = contents[0];
+        final HTTPMethod method = HTTPMethod.getHTTPMethod(contents[0]);
         final String filePath = contents[1].contains(".") ? contents[1]
                 : (contents[1] + "/index.html").replace("//", "/");
         final Path path = Paths.get(webServerConfig.getRoot() + filePath);
-        final HTTPVersion version =
-                "HTTP/1.1".equals(contents[2]) ? HTTPVersion.HTTP_1_1 : HTTPVersion.UNKNOWN;
+        final HTTPVersion version = HTTPVersion.getHTTPVersion(contents[2]);
         final HTTPHeader header = new HTTPHeader(path, method, version);
         return Optional.of(header);
     }

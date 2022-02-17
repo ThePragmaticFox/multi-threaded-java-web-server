@@ -5,7 +5,6 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.atomic.AtomicBoolean;
-import org.eclipse.jetty.util.thread.QueuedThreadPool;
 
 public class WebServer implements Runnable {
 
@@ -13,9 +12,6 @@ public class WebServer implements Runnable {
     private final AtomicBoolean isRunning;
     private final InetAddress hostInetAddress;
     private final ServerSocket serverSocket;
-    private final QueuedThreadPool threadPool;
-    private final HTTPResponseHandler responseHandler;
-
 
     public WebServer(final WebServerConfig webServerConfig) throws IOException {
         this.config = webServerConfig;
@@ -23,8 +19,6 @@ public class WebServer implements Runnable {
         this.hostInetAddress = InetAddress.getByName(this.config.getHost());
         this.serverSocket = new ServerSocket(this.config.getPort(), this.config.getBacklogSize(),
                 this.hostInetAddress);
-        this.threadPool = new QueuedThreadPool(this.config.getNbPoolThreads());
-        this.responseHandler = new HTTPResponseHandler();
     }
 
     public static WebServer start(final WebServerConfig webServerConfig) {
@@ -52,8 +46,7 @@ public class WebServer implements Runnable {
     public void run() {
         while (isRunning.get()) {
             try (final Socket clientSocket = this.serverSocket.accept()) {
-                final RequestHandler requestHandler =
-                        new RequestHandler(clientSocket, this.config, responseHandler);
+                final RequestHandler requestHandler = new RequestHandler(clientSocket, this.config);
                 requestHandler.handle();
             } catch (IOException ioException) {
                 if (!this.isRunning.get()) {
