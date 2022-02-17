@@ -1,4 +1,4 @@
-package com.server;
+package com.server.HTTP;
 
 import java.io.InputStreamReader;
 import java.io.BufferedReader;
@@ -10,13 +10,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import com.server.WebServerConfig;
 
-public class RequestHandler {
+public class HTTPRequestHandler {
 
     private final Socket clientSocket;
     private final WebServerConfig webServerConfig;
 
-    public RequestHandler(final Socket clientSocket, final WebServerConfig webServerConfig) {
+    public HTTPRequestHandler(final Socket clientSocket, final WebServerConfig webServerConfig) {
         this.clientSocket = clientSocket;
         this.webServerConfig = webServerConfig;
     }

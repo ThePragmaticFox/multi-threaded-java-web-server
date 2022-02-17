@@ -1,4 +1,4 @@
-package com.server;
+package com.server.HTTP;
 
 public enum HTTPVersion {
     HTTP_1_1, UNKNOWN;

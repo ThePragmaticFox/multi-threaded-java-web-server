@@ -1,4 +1,4 @@
-package com.server;
+package com.server.HTTP;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -20,7 +20,7 @@ public class HTTPResponseHandler {
         }
     }
 
-    private static void processContentType(final FileExtension ext, final HTTPOutputStream out)
+    private static void processContentType(final HTTPFileExtension ext, final HTTPOutputStream out)
             throws IOException {
         switch (ext) {
             case CSS:
@@ -78,7 +78,7 @@ public class HTTPResponseHandler {
             outputStream.write("HTTP/1.1 200 OK".getBytes());
             outputStream.write("\n".getBytes());
             processContentType(
-                    FileExtension.get(FilenameUtils.getExtension(header.getPath().toString())),
+                    HTTPFileExtension.get(FilenameUtils.getExtension(header.getPath().toString())),
                     outputStream);
             outputStream.write(String
                     .format("Content-Length: " + header.getPath().toFile().length()).getBytes());

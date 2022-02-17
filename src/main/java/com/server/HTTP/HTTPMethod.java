@@ -1,4 +1,4 @@
-package com.server;
+package com.server.HTTP;
 
 public enum HTTPMethod {
     GET, UNKNOWN;
