@@ -5,6 +5,7 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.atomic.AtomicBoolean;
+import com.server.HTTP.HTTPRequestHandler;
 
 public class WebServer implements Runnable {
 
@@ -40,13 +41,12 @@ public class WebServer implements Runnable {
         } catch (IOException ioException) {
             ioException.printStackTrace();
         }
-
     }
 
     public void run() {
         while (isRunning.get()) {
             try (final Socket clientSocket = this.serverSocket.accept()) {
-                final RequestHandler requestHandler = new RequestHandler(clientSocket, this.config);
+                final HTTPRequestHandler requestHandler = new HTTPRequestHandler(clientSocket, this.config);
                 requestHandler.handle();
             } catch (IOException ioException) {
                 if (!this.isRunning.get()) {

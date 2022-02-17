@@ -1,9 +1,9 @@
-package com.server;
+package com.server.HTTP;
 
-public enum FileExtension {
+public enum HTTPFileExtension {
     HTML, CSS, JS, TS, JSON, JPG, JPEG, PNG, SVG, UNKNOWN;
 
-    public static FileExtension get(final String extension) {
+    public static HTTPFileExtension get(final String extension) {
         final String standardizedExt = extension.toLowerCase();
         switch (standardizedExt) {
             case "html":
