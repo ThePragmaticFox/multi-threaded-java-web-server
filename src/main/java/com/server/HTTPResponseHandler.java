@@ -4,7 +4,6 @@ import java.io.File;
 import java.nio.file.Files;
 import org.apache.commons.io.FilenameUtils;
 import java.io.IOException;
-import java.io.OutputStream;
 
 public class HTTPResponseHandler {
 
