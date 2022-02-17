@@ -23,6 +23,8 @@ public class HTTPResponseHandler {
     private static void processContentType(final HTTPFileExtension ext, final HTTPOutputStream out)
             throws IOException {
         switch (ext) {
+            case TXT:
+                out.write("Content-Type: text/plain".getBytes());
             case CSS:
                 out.write("Content-Type: text/css".getBytes());
                 break;
@@ -51,9 +53,9 @@ public class HTTPResponseHandler {
                 out.write("Content-Type: text/json".getBytes());
                 break;
             case UNKNOWN:
-                break;
+                return;
             default:
-                break;
+                throw new IllegalStateException("The File Extension <<" + ext + ">> hasn't been implemented.");
         }
         out.write("\n".getBytes());
     }
