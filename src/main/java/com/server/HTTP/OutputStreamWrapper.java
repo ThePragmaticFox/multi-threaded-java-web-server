@@ -17,8 +17,8 @@ public class OutputStreamWrapper implements AutoCloseable {
         this.bufferedOutputStream = new BufferedOutputStream(outputStream);
     }
 
-    public String toString() {
-        return stringWriter.toString();
+    public String toString(final int startIndex, final int stopIndex) {
+        return stringWriter.getBuffer().substring(startIndex, Math.min(stopIndex, stringWriter.getBuffer().length()));
     }
 
     public BufferedOutputStream get() {

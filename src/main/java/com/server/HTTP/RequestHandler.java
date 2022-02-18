@@ -46,6 +46,7 @@ public class RequestHandler {
         }
     }
 
+
     private static void handleResponse(final Header header, final OutputStreamWrapper outputStream) throws IOException {
         switch (header.getVersion()) {
             case HTTP_1_1 -> ResponseHandler.getResponse(header, outputStream);
@@ -84,8 +85,8 @@ public class RequestHandler {
         System.out.println(headerLines.stream().reduce("", (x, y) -> x + y + "\n"));
         System.out.println();
         System.out.println("Response:\n");
-        final String debugString = outputStream.toString();
-        System.out.println(debugString.substring(0, Math.min(500, debugString.length())) + "\n");
+        final String debugString = outputStream.toString(0, 250);
+        System.out.println(debugString + "\n");
         System.out.println(new String(new char[79]).replace("\0", "-"));
         System.out.println();
     }

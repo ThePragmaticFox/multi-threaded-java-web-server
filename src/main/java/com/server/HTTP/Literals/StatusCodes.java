@@ -22,15 +22,7 @@ public enum StatusCodes {
         return (version.getString() + Other.SPACE.getString() + literal).getBytes();
     }
 
-    public byte[] getBytes() {
-        return literal.getBytes();
-    }
-
     public String getString(final Version version) {
         return version.getString() + Other.SPACE.getString() + literal;
-    }
-
-    public String getString() {
-        return literal;
     }
 }

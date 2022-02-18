@@ -11,6 +11,8 @@ import java.io.IOException;
 
 public class ResponseHandler {
 
+    private static final int PACKET_SIZE = 65536;
+
     public static void getResponse(final Header header, final OutputStreamWrapper outputStream) throws IOException {
         switch (header.getMethod()) {
             case GET -> handleGET(header, outputStream);
@@ -61,7 +63,7 @@ public class ResponseHandler {
     private static void writeBody(final Header requestHeader, final OutputStreamWrapper outputStream)
             throws IOException {
         final var file = new FileInputStream(requestHeader.getPath().toFile());
-        final byte[] byteBuffer = new byte[16384];
+        final byte[] byteBuffer = new byte[PACKET_SIZE];
         int readBytes = file.read(byteBuffer);
         while (readBytes > 0) {
             outputStream.write(byteBuffer, 0, readBytes);
