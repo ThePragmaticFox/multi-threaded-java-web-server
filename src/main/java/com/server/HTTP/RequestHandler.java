@@ -53,7 +53,6 @@ public class RequestHandler {
                 } catch (IOException ioException) {
                     ioException.printStackTrace();
                 }
-
             }, () -> {
                 try {
                     outputStream.write(StatusCodes.BAD_REQUEST.getBytes(Version.HTTP_1_1));
