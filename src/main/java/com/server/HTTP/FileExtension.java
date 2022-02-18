@@ -1,25 +1,25 @@
 package com.server.HTTP;
 
-public enum HTTPFileExtension {
-    HTML("Content-Type: text/html"),
-    CSS("Content-Type: text/css"),
-    JS("Content-Type: text/javascript"),
-    TXT("Content-Type: text/plain"), 
-    JSON("Content-Type: application/json"),
-    XML("Content-Type: application/xml"),
-    WASM("Content-Type: application/wasm"),
-    WEBMANIFEST("Content-Type: application/manifest+json"),
-    WEBAPP("Content-Type: application/x-web-app-manifest+json"),
-    APPCACHE("Content-Type: text/cache-manifest"),
-    BMP("Content-Type: image/bmp"),
-    GIF("Content-Type: image/gif"),
-    JPG("Content-Type: image/jpg"),
-    JPEG("Content-Type: image/jpeg"),
-    PNG("Content-Type: image/png"),
-    SVG("Content-Type: image/svg+xml"),
+public enum FileExtension {
+    HTML("text/html"),
+    CSS("text/css"),
+    JS("text/javascript"),
+    TXT("text/plain"), 
+    JSON("application/json"),
+    XML("application/xml"),
+    WASM("application/wasm"),
+    WEBMANIFEST("application/manifest+json"),
+    WEBAPP("application/x-web-app-manifest+json"),
+    APPCACHE("text/cache-manifest"),
+    BMP("image/bmp"),
+    GIF("image/gif"),
+    JPG("image/jpg"),
+    JPEG("image/jpeg"),
+    PNG("image/png"),
+    SVG("image/svg+xml"),
     UNKNOWN("");
 
-    public static HTTPFileExtension get(final String extension) {
+    public static FileExtension get(final String extension) {
         final String standardizedExt = extension.toLowerCase();
         return switch (standardizedExt) {
             case "html" -> HTML;
@@ -44,7 +44,7 @@ public enum HTTPFileExtension {
 
     private final String literal;
 
-    private HTTPFileExtension(final String literal) {
+    private FileExtension(final String literal) {
         this.literal = literal;
     }
 
@@ -53,6 +53,13 @@ public enum HTTPFileExtension {
     }
 
     public byte[] getBytes() {
-        return this.literal.getBytes();
+        return switch(this) {
+            case UNKNOWN -> Literals.EMPTY.getBytes();
+            default -> (Options.CONTENT_TYPE.getString() + Literals.SPACE.toString() + literal).getBytes();
+        };
+    }
+
+    public String getString() {
+        return literal;
     }
 }

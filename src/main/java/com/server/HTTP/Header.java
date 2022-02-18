@@ -2,13 +2,13 @@ package com.server.HTTP;
 
 import java.nio.file.Path;
 
-public class HTTPHeader {
+public class Header {
 
     private final Path path;
-    private final HTTPMethod method;
-    private final HTTPVersion version;
+    private final Method method;
+    private final Version version;
 
-    public HTTPHeader(final Path path, final HTTPMethod method, final HTTPVersion version) {
+    public Header(final Path path, final Method method, final Version version) {
         this.path = path;
         this.method = method;
         this.version = version;
@@ -18,11 +18,11 @@ public class HTTPHeader {
         return path;
     }
 
-    public HTTPMethod getMethod() {
+    public Method getMethod() {
         return method;
     }
 
-    public HTTPVersion getVersion() {
+    public Version getVersion() {
         return version;
     }
 }

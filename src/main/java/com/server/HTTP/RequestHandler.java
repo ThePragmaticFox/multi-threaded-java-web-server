@@ -10,17 +10,17 @@ import java.util.List;
 import java.util.Optional;
 import com.server.WebServerConfig;
 
-public class HTTPRequestHandler {
+public class RequestHandler {
 
     private final Socket clientSocket;
     private final WebServerConfig webServerConfig;
 
-    public HTTPRequestHandler(final Socket clientSocket, final WebServerConfig webServerConfig) {
+    public RequestHandler(final Socket clientSocket, final WebServerConfig webServerConfig) {
         this.clientSocket = clientSocket;
         this.webServerConfig = webServerConfig;
     }
 
-    private List<String> readHeader(final HTTPInputStream inputStream) throws IOException {
+    private List<String> readHeader(final InputStreamWrapper inputStream) throws IOException {
         final List<String> headerLines = new ArrayList<>();
         String inputLine = inputStream.readLine();
         while (inputLine != null && inputLine.length() > 0) {
@@ -32,8 +32,8 @@ public class HTTPRequestHandler {
 
     public void handle() {
         try {
-            final HTTPInputStream inputStream = new HTTPInputStream(clientSocket.getInputStream());
-            final HTTPOutputStream outputStream = new HTTPOutputStream(clientSocket.getOutputStream());
+            final InputStreamWrapper inputStream = new InputStreamWrapper(clientSocket.getInputStream());
+            final OutputStreamWrapper outputStream = new OutputStreamWrapper(clientSocket.getOutputStream());
 
             // Only header is relevant, the body is ignored.
             final List<String> headerLines = readHeader(inputStream);
@@ -41,10 +41,10 @@ public class HTTPRequestHandler {
             parseHeader(headerLines).ifPresentOrElse(header -> {
                 try {
                     if (!handleResponse(header, outputStream)) {
-                        outputStream.write(HTTPConstants.INTERNAL_SERVER_ERROR.getBytes());
-                        outputStream.write(HTTPConstants.NEWLINE.getBytes());
-                        outputStream.write(HTTPConstants.CONNECTION_CLOSE.getBytes());
-                        outputStream.write(HTTPConstants.NEW_EMPTYLINE.getBytes());
+                        outputStream.write(StatusCodes.INTERNAL_SERVER_ERROR.getBytes(header.getVersion()));
+                        outputStream.write(Literals.NEWLINE.getBytes());
+                        outputStream.write(Options.CONNECTION_CLOSE.getBytes());
+                        outputStream.write(Literals.NEW_EMPTYLINE.getBytes());
                     }
                 } catch (IOException ioException) {
                     ioException.printStackTrace();
@@ -52,10 +52,10 @@ public class HTTPRequestHandler {
 
             }, () -> {
                 try {
-                    outputStream.write(HTTPConstants.BAD_REQUEST.getBytes());
-                    outputStream.write(HTTPConstants.NEWLINE.getBytes());
-                    outputStream.write(HTTPConstants.CONNECTION_CLOSE.getBytes());
-                    outputStream.write(HTTPConstants.NEW_EMPTYLINE.getBytes());
+                    outputStream.write(StatusCodes.BAD_REQUEST.getBytes(Version.HTTP_1_1));
+                    outputStream.write(Literals.NEWLINE.getBytes());
+                    outputStream.write(Options.CONNECTION_CLOSE.getBytes());
+                    outputStream.write(Literals.NEW_EMPTYLINE.getBytes());
                 } catch (IOException ioException) {
                     ioException.printStackTrace();
                 }
@@ -69,15 +69,15 @@ public class HTTPRequestHandler {
         }
     }
 
-    private boolean handleResponse(final HTTPHeader header, final HTTPOutputStream outputStream) throws IOException {
+    private boolean handleResponse(final Header header, final OutputStreamWrapper outputStream) throws IOException {
         switch (header.getVersion()) {
             case HTTP_1_1:
-                return HTTPResponseHandler.getResponse(header, outputStream);
+                return ResponseHandler.getResponse(header, outputStream);
             case UNKNOWN:
-                outputStream.write(HTTPConstants.HTTP_VERSION_NOT_SUPPORTED.getBytes());
-                outputStream.write(HTTPConstants.NEWLINE.getBytes());
-                outputStream.write(HTTPConstants.CONNECTION_CLOSE.getBytes());
-                outputStream.write(HTTPConstants.NEW_EMPTYLINE.getBytes());
+                outputStream.write(StatusCodes.HTTP_VERSION_NOT_SUPPORTED.getBytes(header.getVersion()));
+                outputStream.write(Literals.NEWLINE.getBytes());
+                outputStream.write(Options.CONNECTION_CLOSE.getBytes());
+                outputStream.write(Literals.NEW_EMPTYLINE.getBytes());
                 return true;
             default:
                 throw new IllegalStateException(
@@ -85,7 +85,7 @@ public class HTTPRequestHandler {
         }
     }
 
-    private Optional<HTTPHeader> parseHeader(final List<String> headerLines) {
+    private Optional<Header> parseHeader(final List<String> headerLines) {
         if (headerLines.size() < 1) {
             return Optional.empty();
         }
@@ -95,12 +95,12 @@ public class HTTPRequestHandler {
         if (contents.length != 3) {
             return Optional.empty();
         }
-        final HTTPMethod method = HTTPMethod.getHTTPMethod(contents[0]);
+        final Method method = Method.getMethod(contents[0]);
         final String filePath =
                 contents[1].contains(".") ? contents[1] : (contents[1] + "/index.html").replace("//", "/");
         final Path path = Paths.get(webServerConfig.getRoot() + filePath);
-        final HTTPVersion version = HTTPVersion.getHTTPVersion(contents[2]);
-        final HTTPHeader header = new HTTPHeader(path, method, version);
+        final Version version = Version.getVersion(contents[2]);
+        final Header header = new Header(path, method, version);
         return Optional.of(header);
     }
 }

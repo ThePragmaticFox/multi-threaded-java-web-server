@@ -3,26 +3,35 @@ package com.server.HTTP;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.StringWriter;
 
-public class HTTPOutputStream {
+public class OutputStreamWrapper {
 
+    private final StringWriter stringWriter;
     private final OutputStream outputStream;
     private final BufferedOutputStream bufferedOutputStream;
 
-    public HTTPOutputStream(final OutputStream outputStream) {
+    public OutputStreamWrapper(final OutputStream outputStream) {
+        this.stringWriter = new StringWriter();
         this.outputStream = outputStream;
         this.bufferedOutputStream = new BufferedOutputStream(outputStream);
+    }
+
+    public String toString() {
+        return stringWriter.toString();
     }
 
     public BufferedOutputStream get() {
         return bufferedOutputStream;
     }
 
-    public void write(byte[] arg0) throws IOException {
-        bufferedOutputStream.write(arg0);
+    public void write(final byte[] bytes) throws IOException {
+        stringWriter.write(new String(bytes));
+        bufferedOutputStream.write(bytes);
     }
 
     public void close() throws IOException {
+        stringWriter.close();
         bufferedOutputStream.close();
         outputStream.close();
     }

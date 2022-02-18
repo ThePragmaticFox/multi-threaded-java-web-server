@@ -31,10 +31,6 @@ public class TestWebServer {
         // when
         final WebServer server = WebServer.start(config);
         final HttpResponse<String> res1 = Unirest.get(baseAddr).asString();
-        System.out.println("status: " + res1.getStatus());
-        System.out.println("status text: " + res1.getStatusText());
-        System.out.println("headers: " + res1.getHeaders());
-        System.out.println("body: " + res1.getBody());
         final HttpResponse<String> res2 = Unirest.get(baseAddr + "about").asString();
         server.stop();
 

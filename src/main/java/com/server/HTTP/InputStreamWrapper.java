@@ -5,13 +5,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-public class HTTPInputStream {
+public class InputStreamWrapper {
 
     private final InputStream inputStream;
     private final BufferedReader bufferedReader;
     private final InputStreamReader inputStreamReader;
 
-    public HTTPInputStream(final InputStream inputStream) {
+    public InputStreamWrapper(final InputStream inputStream) {
         this.inputStream = inputStream;
         this.inputStreamReader = new InputStreamReader(inputStream);
         this.bufferedReader = new BufferedReader(inputStreamReader);

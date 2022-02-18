@@ -1,9 +1,9 @@
 package com.server.HTTP;
 
-public enum HTTPMethod {
+public enum Method {
     GET, UNKNOWN;
 
-    public static HTTPMethod getHTTPMethod(final String method) {
+    public static Method getMethod(final String method) {
         switch (method) {
             case "GET":
                 return GET;
