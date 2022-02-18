@@ -11,13 +11,13 @@ import java.io.IOException;
 
 public class ResponseHandler {
 
-    public static boolean getResponse(final Header header, final OutputStreamWrapper outputStream) throws IOException {
-        return switch (header.getMethod()) {
+    public static void getResponse(final Header header, final OutputStreamWrapper outputStream) throws IOException {
+        switch (header.getMethod()) {
             case GET -> handleGET(header, outputStream);
             case UNKNOWN -> handleUNKNOWN(header, outputStream);
             default -> throw new IllegalStateException(
                     "The HTTPMethod <<" + header.getMethod() + ">> hasn't been implemented.");
-        };
+        }
     }
 
     private static String getContentType(final FileExtension ext) {
@@ -33,7 +33,7 @@ public class ResponseHandler {
         return builder.toString();
     }
 
-    private static boolean handleGET(final Header requestHeader, final OutputStreamWrapper outputStream)
+    private static void handleGET(final Header requestHeader, final OutputStreamWrapper outputStream)
             throws IOException {
         final File file = requestHeader.getPath().toFile();
         if (!file.exists()) {
@@ -41,14 +41,15 @@ public class ResponseHandler {
             outputStream.write(Other.NEWLINE.getBytes());
             outputStream.write(Options.CONNECTION_CLOSE.getBytes());
             outputStream.write(Other.NEW_EMPTYLINE.getBytes());
-            return true;
         }
         if (!file.canRead()) {
-            return false;
+            outputStream.write(StatusCodes.INTERNAL_SERVER_ERROR.getBytes(requestHeader.getVersion()));
+            outputStream.write(Other.NEWLINE.getBytes());
+            outputStream.write(Options.CONNECTION_CLOSE.getBytes());
+            outputStream.write(Other.NEW_EMPTYLINE.getBytes());
         }
         writeHeader(requestHeader, outputStream);
         writeBody(requestHeader, outputStream);
-        return true;
     }
 
     private static void writeHeader(final Header requestHeader, final OutputStreamWrapper outputStream)
@@ -84,12 +85,10 @@ public class ResponseHandler {
         return builder.toString();
     }
 
-    private static boolean handleUNKNOWN(final Header header, final OutputStreamWrapper outputStream)
-            throws IOException {
+    private static void handleUNKNOWN(final Header header, final OutputStreamWrapper outputStream) throws IOException {
         outputStream.write(StatusCodes.NOT_IMPLEMENTED.getBytes(header.getVersion()));
         outputStream.write(Other.NEWLINE.getBytes());
         outputStream.write(Options.CONNECTION_CLOSE.getBytes());
         outputStream.write(Other.NEW_EMPTYLINE.getBytes());
-        return true;
     }
 }

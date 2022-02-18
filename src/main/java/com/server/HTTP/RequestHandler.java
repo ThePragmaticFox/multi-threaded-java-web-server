@@ -30,38 +30,33 @@ public class RequestHandler {
         try (final InputStreamWrapper inputStream = new InputStreamWrapper(clientSocket.getInputStream());
                 final OutputStreamWrapper outputStream = new OutputStreamWrapper(clientSocket.getOutputStream())) {
             // Only header is relevant, the body is ignored.
-            Optional<Header> header = parseHeader(webServerConfig, readHeader(inputStream));
-            if (header.isPresent() && !handleResponse(header.get(), outputStream)) {
-                outputStream.write(StatusCodes.INTERNAL_SERVER_ERROR.getBytes(header.get().getVersion()));
-                outputStream.write(Other.NEWLINE.getBytes());
-                outputStream.write(Options.CONNECTION_CLOSE.getBytes());
-                outputStream.write(Other.NEW_EMPTYLINE.getBytes());
+            final List<String> headerLines = readHeader(inputStream);
+            Optional<Header> header = parseHeader(webServerConfig, headerLines);
+            if (header.isPresent()) {
+                handleResponse(header.get(), outputStream);
             } else {
                 outputStream.write(StatusCodes.BAD_REQUEST.getBytes(Version.HTTP_1_1));
                 outputStream.write(Other.NEWLINE.getBytes());
                 outputStream.write(Options.CONNECTION_CLOSE.getBytes());
                 outputStream.write(Other.NEW_EMPTYLINE.getBytes());
             }
-            printDebug(outputStream);
+            printDebug(headerLines, outputStream);
         } catch (IOException ioException) {
             ioException.printStackTrace();
         }
     }
 
-    private static boolean handleResponse(final Header header, final OutputStreamWrapper outputStream)
-            throws IOException {
+    private static void handleResponse(final Header header, final OutputStreamWrapper outputStream) throws IOException {
         switch (header.getVersion()) {
-            case HTTP_1_1:
-                return ResponseHandler.getResponse(header, outputStream);
-            case UNKNOWN:
+            case HTTP_1_1 -> ResponseHandler.getResponse(header, outputStream);
+            case UNKNOWN -> {
                 outputStream.write(StatusCodes.HTTP_VERSION_NOT_SUPPORTED.getBytes(header.getVersion()));
                 outputStream.write(Other.NEWLINE.getBytes());
                 outputStream.write(Options.CONNECTION_CLOSE.getBytes());
                 outputStream.write(Other.NEW_EMPTYLINE.getBytes());
-                return true;
-            default:
-                throw new IllegalStateException(
-                        "The HTTPVersion <<" + header.getVersion() + ">> has not been implented");
+            }
+            default -> throw new IllegalStateException(
+                    "The HTTPVersion <<" + header.getVersion() + ">> has not been implented");
         }
     }
 
@@ -84,7 +79,11 @@ public class RequestHandler {
         return Optional.of(header);
     }
 
-    private static void printDebug(final OutputStreamWrapper outputStream) {
+    private static void printDebug(final List<String> headerLines, final OutputStreamWrapper outputStream) {
+        System.out.println("Request:\n");
+        System.out.println(headerLines.stream().reduce("", (x, y) -> x + y + "\n"));
+        System.out.println();
+        System.out.println("Response:\n");
         final String debugString = outputStream.toString();
         System.out.println(debugString.substring(0, Math.min(500, debugString.length())) + "\n");
         System.out.println(new String(new char[79]).replace("\0", "-"));
