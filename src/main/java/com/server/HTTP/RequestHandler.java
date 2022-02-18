@@ -9,6 +9,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import com.server.WebServerConfig;
+import com.server.HTTP.Literals.Other;
+import com.server.HTTP.Literals.Options;
+import com.server.HTTP.Literals.StatusCodes;
+import com.server.HTTP.Literals.Version;
 
 public class RequestHandler {
 
@@ -42,9 +46,9 @@ public class RequestHandler {
                 try {
                     if (!handleResponse(header, outputStream)) {
                         outputStream.write(StatusCodes.INTERNAL_SERVER_ERROR.getBytes(header.getVersion()));
-                        outputStream.write(Literals.NEWLINE.getBytes());
+                        outputStream.write(Other.NEWLINE.getBytes());
                         outputStream.write(Options.CONNECTION_CLOSE.getBytes());
-                        outputStream.write(Literals.NEW_EMPTYLINE.getBytes());
+                        outputStream.write(Other.NEW_EMPTYLINE.getBytes());
                     }
                 } catch (IOException ioException) {
                     ioException.printStackTrace();
@@ -53,9 +57,9 @@ public class RequestHandler {
             }, () -> {
                 try {
                     outputStream.write(StatusCodes.BAD_REQUEST.getBytes(Version.HTTP_1_1));
-                    outputStream.write(Literals.NEWLINE.getBytes());
+                    outputStream.write(Other.NEWLINE.getBytes());
                     outputStream.write(Options.CONNECTION_CLOSE.getBytes());
-                    outputStream.write(Literals.NEW_EMPTYLINE.getBytes());
+                    outputStream.write(Other.NEW_EMPTYLINE.getBytes());
                 } catch (IOException ioException) {
                     ioException.printStackTrace();
                 }
@@ -75,9 +79,9 @@ public class RequestHandler {
                 return ResponseHandler.getResponse(header, outputStream);
             case UNKNOWN:
                 outputStream.write(StatusCodes.HTTP_VERSION_NOT_SUPPORTED.getBytes(header.getVersion()));
-                outputStream.write(Literals.NEWLINE.getBytes());
+                outputStream.write(Other.NEWLINE.getBytes());
                 outputStream.write(Options.CONNECTION_CLOSE.getBytes());
-                outputStream.write(Literals.NEW_EMPTYLINE.getBytes());
+                outputStream.write(Other.NEW_EMPTYLINE.getBytes());
                 return true;
             default:
                 throw new IllegalStateException(

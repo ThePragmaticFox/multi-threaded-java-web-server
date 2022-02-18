@@ -1,90 +1,103 @@
 package com.server.HTTP;
 
 import java.io.File;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
+import java.io.FileInputStream;
+import com.server.HTTP.Literals.FileExtension;
+import com.server.HTTP.Literals.Other;
+import com.server.HTTP.Literals.Options;
+import com.server.HTTP.Literals.StatusCodes;
 import org.apache.commons.io.FilenameUtils;
 import java.io.IOException;
 
 public class ResponseHandler {
 
-    public static boolean getResponse(final Header header, final OutputStreamWrapper outputStream) {
+    public static boolean getResponse(final Header header, final OutputStreamWrapper outputStream) throws IOException {
         return switch (header.getMethod()) {
             case GET -> handleGET(header, outputStream);
             case UNKNOWN -> handleUNKNOWN(header, outputStream);
-            default -> throw new IllegalStateException("The HTTPMethod <<" + header.getMethod() + ">> hasn't been implemented.");
+            default -> throw new IllegalStateException(
+                    "The HTTPMethod <<" + header.getMethod() + ">> hasn't been implemented.");
         };
     }
 
     private static String getContentType(final FileExtension ext) {
         if (ext.equals(FileExtension.UNKNOWN)) {
-            return Literals.EMPTY.getString();
+            return Other.EMPTY.getString();
         }
         final StringBuilder builder = new StringBuilder();
         builder.append(ext.getString());
-        builder.append(Literals.NEWLINE.getString());
+        builder.append(Other.NEWLINE.getString());
         // recommended security header if file extension is known
         builder.append(Options.NO_SNIFF.getString());
-        builder.append(Literals.NEWLINE.getString());
+        builder.append(Other.NEWLINE.getString());
         return builder.toString();
     }
 
-    private static boolean handleGET(final Header requestHeader, final OutputStreamWrapper outputStream) {
+    private static boolean handleGET(final Header requestHeader, final OutputStreamWrapper outputStream)
+            throws IOException {
         final File file = requestHeader.getPath().toFile();
         if (!file.exists()) {
-            try {
-                outputStream.write(StatusCodes.NOT_FOUND.getBytes(requestHeader.getVersion()));
-                outputStream.write(Literals.NEWLINE.getBytes());
-                outputStream.write(Options.CONNECTION_CLOSE.getBytes());
-                outputStream.write(Literals.NEW_EMPTYLINE.getBytes());
-            } catch (IOException ioException) {
-                ioException.printStackTrace();
-                return false;
-            }
+            outputStream.write(StatusCodes.NOT_FOUND.getBytes(requestHeader.getVersion()));
+            outputStream.write(Other.NEWLINE.getBytes());
+            outputStream.write(Options.CONNECTION_CLOSE.getBytes());
+            outputStream.write(Other.NEW_EMPTYLINE.getBytes());
             return true;
         }
         if (!file.canRead()) {
             return false;
         }
-        try {
-            final String responseHeader = buildHeader(requestHeader);
-            outputStream.write(responseHeader.getBytes());
-            Files.copy(requestHeader.getPath(), outputStream.get());
-            final String debugString = outputStream.toString();
-            System.out.println(debugString.substring(0, Math.min(250, debugString.length())));
-        } catch (IOException ioException) {
-            ioException.printStackTrace();
-            return false;
-        }
+        writeHeader(requestHeader, outputStream);
+        writeBody(requestHeader, outputStream);
+        printDebug(outputStream);
         return true;
+    }
+
+    private static void writeHeader(final Header requestHeader, final OutputStreamWrapper outputStream)
+            throws IOException {
+        final String responseHeader = buildHeader(requestHeader);
+        outputStream.write(responseHeader.getBytes());
+    }
+
+    private static void printDebug(final OutputStreamWrapper outputStream) {
+        final String debugString = outputStream.toString();
+        System.out.println(debugString.substring(0, Math.min(500, debugString.length())) + "\n");
+        System.out.println(new String(new char[79]).replace("\0", "-"));
+        System.out.println();
+    }
+
+    private static void writeBody(final Header requestHeader, final OutputStreamWrapper outputStream)
+            throws IOException {
+        final var file = new FileInputStream(requestHeader.getPath().toFile());
+        final byte[] byteBuffer = new byte[16384];
+        int readBytes = file.read(byteBuffer);
+        while (readBytes > 0) {
+            outputStream.write(byteBuffer, 0, readBytes);
+            readBytes = file.read(byteBuffer);
+        }
     }
 
     private static String buildHeader(final Header requestHeader) {
         final StringBuilder builder = new StringBuilder();
-        builder.append(StatusCodes.OK.getString());
-        builder.append(Literals.NEWLINE.getString());
+        builder.append(StatusCodes.OK.getString(requestHeader.getVersion()));
+        builder.append(Other.NEWLINE.getString());
         final String extensionStr = FilenameUtils.getExtension(requestHeader.getPath().toString());
         final FileExtension extension = FileExtension.get(extensionStr);
         builder.append(getContentType(extension));
         builder.append(Options.CONTENT_LENGTH.getString());
-        builder.append(Literals.SPACE.getString());
+        builder.append(Other.SPACE.getString());
         builder.append(requestHeader.getPath().toFile().length());
-        builder.append(Literals.NEWLINE.getString());
+        builder.append(Other.NEWLINE.getString());
         builder.append(Options.CONNECTION_CLOSE.getString());
-        builder.append(Literals.NEW_EMPTYLINE.getString());
+        builder.append(Other.NEW_EMPTYLINE.getString());
         return builder.toString();
     }
 
-    private static boolean handleUNKNOWN(final Header header, final OutputStreamWrapper outputStream) {
-        try {
-            outputStream.write(StatusCodes.NOT_IMPLEMENTED.getBytes(header.getVersion()));
-            outputStream.write(Literals.NEWLINE.getBytes());
-            outputStream.write(Options.CONNECTION_CLOSE.getBytes());
-            outputStream.write(Literals.NEW_EMPTYLINE.getBytes());
-        } catch (IOException ioException) {
-            ioException.printStackTrace();
-            return false;
-        }
+    private static boolean handleUNKNOWN(final Header header, final OutputStreamWrapper outputStream)
+            throws IOException {
+        outputStream.write(StatusCodes.NOT_IMPLEMENTED.getBytes(header.getVersion()));
+        outputStream.write(Other.NEWLINE.getBytes());
+        outputStream.write(Options.CONNECTION_CLOSE.getBytes());
+        outputStream.write(Other.NEW_EMPTYLINE.getBytes());
         return true;
     }
 }

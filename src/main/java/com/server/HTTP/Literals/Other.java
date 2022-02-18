@@ -1,6 +1,6 @@
-package com.server.HTTP;
+package com.server.HTTP.Literals;
 
-public enum Literals {
+public enum Other {
     EMPTY(""),
     SPACE(" "),
     NEWLINE("\n"),
@@ -8,7 +8,7 @@ public enum Literals {
 
     private final String literal;
 
-    private Literals(final String literal) {
+    private Other(final String literal) {
         this.literal = literal;
     }
 

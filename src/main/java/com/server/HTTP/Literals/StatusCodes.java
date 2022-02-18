@@ -1,4 +1,4 @@
-package com.server.HTTP;
+package com.server.HTTP.Literals;
 
 public enum StatusCodes {
     OK("200 OK"),
@@ -19,11 +19,15 @@ public enum StatusCodes {
     }
 
     public byte[] getBytes(final Version version) {
-        return (version.getString() + Literals.SPACE.getString() + literal).getBytes();
+        return (version.getString() + Other.SPACE.getString() + literal).getBytes();
     }
 
     public byte[] getBytes() {
         return literal.getBytes();
+    }
+
+    public String getString(final Version version) {
+        return version.getString() + Other.SPACE.getString() + literal;
     }
 
     public String getString() {

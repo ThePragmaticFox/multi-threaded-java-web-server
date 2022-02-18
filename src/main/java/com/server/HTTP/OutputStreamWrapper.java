@@ -25,6 +25,11 @@ public class OutputStreamWrapper {
         return bufferedOutputStream;
     }
 
+    public void write(final byte[] bytes, final int startIndex, final int stopIndex) throws IOException {
+        stringWriter.write(new String(bytes, startIndex, stopIndex));
+        bufferedOutputStream.write(bytes, startIndex, stopIndex);
+    }
+
     public void write(final byte[] bytes) throws IOException {
         stringWriter.write(new String(bytes));
         bufferedOutputStream.write(bytes);

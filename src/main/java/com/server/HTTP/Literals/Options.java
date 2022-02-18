@@ -1,4 +1,4 @@
-package com.server.HTTP;
+package com.server.HTTP.Literals;
 
 public enum Options {
     CONNECTION_CLOSE("Connection: close"),

@@ -1,4 +1,4 @@
-package com.server.HTTP;
+package com.server.HTTP.Literals;
 
 public enum FileExtension {
     HTML("text/html"),
@@ -54,12 +54,15 @@ public enum FileExtension {
 
     public byte[] getBytes() {
         return switch(this) {
-            case UNKNOWN -> Literals.EMPTY.getBytes();
-            default -> (Options.CONTENT_TYPE.getString() + Literals.SPACE.toString() + literal).getBytes();
+            case UNKNOWN -> Other.EMPTY.getBytes();
+            default -> (Options.CONTENT_TYPE.getString() + Other.SPACE.getString() + literal).getBytes();
         };
     }
 
     public String getString() {
-        return literal;
+        return switch(this) {
+         case UNKNOWN -> Other.EMPTY.getString();
+         default -> Options.CONTENT_TYPE.getString() + Other.SPACE.getString() + literal;
+        };
     }
 }

@@ -1,4 +1,4 @@
-package com.server.HTTP;
+package com.server.HTTP.Literals;
 
 public enum Version {
     HTTP_1_1("HTTP/1.1"), UNKNOWN("HTTP/1.1");
