@@ -48,7 +48,6 @@ public class ResponseHandler {
         }
         writeHeader(requestHeader, outputStream);
         writeBody(requestHeader, outputStream);
-        printDebug(outputStream);
         return true;
     }
 
@@ -56,13 +55,6 @@ public class ResponseHandler {
             throws IOException {
         final String responseHeader = buildHeader(requestHeader);
         outputStream.write(responseHeader.getBytes());
-    }
-
-    private static void printDebug(final OutputStreamWrapper outputStream) {
-        final String debugString = outputStream.toString();
-        System.out.println(debugString.substring(0, Math.min(500, debugString.length())) + "\n");
-        System.out.println(new String(new char[79]).replace("\0", "-"));
-        System.out.println();
     }
 
     private static void writeBody(final Header requestHeader, final OutputStreamWrapper outputStream)

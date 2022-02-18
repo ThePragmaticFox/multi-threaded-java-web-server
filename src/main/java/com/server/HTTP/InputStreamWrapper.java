@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-public class InputStreamWrapper {
+public class InputStreamWrapper implements AutoCloseable {
 
     private final InputStream inputStream;
     private final BufferedReader bufferedReader;

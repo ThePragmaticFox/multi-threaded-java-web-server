@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.StringWriter;
 
-public class OutputStreamWrapper {
+public class OutputStreamWrapper implements AutoCloseable {
 
     private final StringWriter stringWriter;
     private final OutputStream outputStream;

@@ -18,8 +18,7 @@ public class WebServer implements Runnable {
         this.config = webServerConfig;
         this.isRunning = new AtomicBoolean(true);
         this.hostInetAddress = InetAddress.getByName(this.config.getHost());
-        this.serverSocket = new ServerSocket(this.config.getPort(), this.config.getBacklogSize(),
-                this.hostInetAddress);
+        this.serverSocket = new ServerSocket(this.config.getPort(), this.config.getBacklogSize(), this.hostInetAddress);
     }
 
     public static WebServer start(final WebServerConfig webServerConfig) {
@@ -46,8 +45,7 @@ public class WebServer implements Runnable {
     public void run() {
         while (isRunning.get()) {
             try (final Socket clientSocket = this.serverSocket.accept()) {
-                final RequestHandler requestHandler = new RequestHandler(clientSocket, this.config);
-                requestHandler.handle();
+                RequestHandler.handle(clientSocket, config);
             } catch (IOException ioException) {
                 if (!this.isRunning.get()) {
                     System.out.println("Server shutdown");

@@ -16,15 +16,7 @@ import com.server.HTTP.Literals.Version;
 
 public class RequestHandler {
 
-    private final Socket clientSocket;
-    private final WebServerConfig webServerConfig;
-
-    public RequestHandler(final Socket clientSocket, final WebServerConfig webServerConfig) {
-        this.clientSocket = clientSocket;
-        this.webServerConfig = webServerConfig;
-    }
-
-    private List<String> readHeader(final InputStreamWrapper inputStream) throws IOException {
+    private static List<String> readHeader(final InputStreamWrapper inputStream) throws IOException {
         final List<String> headerLines = new ArrayList<>();
         String inputLine = inputStream.readLine();
         while (inputLine != null && inputLine.length() > 0) {
@@ -34,45 +26,30 @@ public class RequestHandler {
         return headerLines;
     }
 
-    public void handle() {
-        try {
-            final InputStreamWrapper inputStream = new InputStreamWrapper(clientSocket.getInputStream());
-            final OutputStreamWrapper outputStream = new OutputStreamWrapper(clientSocket.getOutputStream());
-
+    public static void handle(final Socket clientSocket, final WebServerConfig webServerConfig) {
+        try (final InputStreamWrapper inputStream = new InputStreamWrapper(clientSocket.getInputStream());
+                final OutputStreamWrapper outputStream = new OutputStreamWrapper(clientSocket.getOutputStream())) {
             // Only header is relevant, the body is ignored.
-            final List<String> headerLines = readHeader(inputStream);
-
-            parseHeader(headerLines).ifPresentOrElse(header -> {
-                try {
-                    if (!handleResponse(header, outputStream)) {
-                        outputStream.write(StatusCodes.INTERNAL_SERVER_ERROR.getBytes(header.getVersion()));
-                        outputStream.write(Other.NEWLINE.getBytes());
-                        outputStream.write(Options.CONNECTION_CLOSE.getBytes());
-                        outputStream.write(Other.NEW_EMPTYLINE.getBytes());
-                    }
-                } catch (IOException ioException) {
-                    ioException.printStackTrace();
-                }
-            }, () -> {
-                try {
-                    outputStream.write(StatusCodes.BAD_REQUEST.getBytes(Version.HTTP_1_1));
-                    outputStream.write(Other.NEWLINE.getBytes());
-                    outputStream.write(Options.CONNECTION_CLOSE.getBytes());
-                    outputStream.write(Other.NEW_EMPTYLINE.getBytes());
-                } catch (IOException ioException) {
-                    ioException.printStackTrace();
-                }
-            });
-            // outputStream.flush();
-            outputStream.close();
-            inputStream.close();
-            clientSocket.close();
+            Optional<Header> header = parseHeader(webServerConfig, readHeader(inputStream));
+            if (header.isPresent() && !handleResponse(header.get(), outputStream)) {
+                outputStream.write(StatusCodes.INTERNAL_SERVER_ERROR.getBytes(header.get().getVersion()));
+                outputStream.write(Other.NEWLINE.getBytes());
+                outputStream.write(Options.CONNECTION_CLOSE.getBytes());
+                outputStream.write(Other.NEW_EMPTYLINE.getBytes());
+            } else {
+                outputStream.write(StatusCodes.BAD_REQUEST.getBytes(Version.HTTP_1_1));
+                outputStream.write(Other.NEWLINE.getBytes());
+                outputStream.write(Options.CONNECTION_CLOSE.getBytes());
+                outputStream.write(Other.NEW_EMPTYLINE.getBytes());
+            }
+            printDebug(outputStream);
         } catch (IOException ioException) {
             ioException.printStackTrace();
         }
     }
 
-    private boolean handleResponse(final Header header, final OutputStreamWrapper outputStream) throws IOException {
+    private static boolean handleResponse(final Header header, final OutputStreamWrapper outputStream)
+            throws IOException {
         switch (header.getVersion()) {
             case HTTP_1_1:
                 return ResponseHandler.getResponse(header, outputStream);
@@ -88,11 +65,11 @@ public class RequestHandler {
         }
     }
 
-    private Optional<Header> parseHeader(final List<String> headerLines) {
+    private static Optional<Header> parseHeader(final WebServerConfig webServerConfig, final List<String> headerLines) {
         if (headerLines.size() < 1) {
             return Optional.empty();
         }
-        // Only interested in the first line, containing method, path and version
+        // Only interested in the first line for the time being; containing method, path and version
         final String[] contents =
                 Arrays.stream(headerLines.get(0).split(" ")).map(content -> content.trim()).toArray(String[]::new);
         if (contents.length != 3) {
@@ -105,5 +82,12 @@ public class RequestHandler {
         final Version version = Version.getVersion(contents[2]);
         final Header header = new Header(path, method, version);
         return Optional.of(header);
+    }
+
+    private static void printDebug(final OutputStreamWrapper outputStream) {
+        final String debugString = outputStream.toString();
+        System.out.println(debugString.substring(0, Math.min(500, debugString.length())) + "\n");
+        System.out.println(new String(new char[79]).replace("\0", "-"));
+        System.out.println();
     }
 }
