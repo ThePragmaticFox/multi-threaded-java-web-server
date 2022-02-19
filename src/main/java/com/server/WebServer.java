@@ -25,22 +25,28 @@ public class WebServer implements Runnable {
     }
 
     public static Optional<WebServer> start(final WebServerConfig webServerConfig) {
+
         WebServer webServer = null;
+
         try {
             webServer = new WebServer(webServerConfig);
         } catch (IOException ioException) {
             ioException.printStackTrace();
         }
+
         if (webServer != null) {
             final Thread mainServerThread = new Thread(webServer);
             mainServerThread.start();
             return Optional.of(webServer);
         }
+
         return Optional.empty();
     }
 
     public synchronized void stop() {
+
         isRunning.set(false);
+
         try {
             serverSocket.close();
         } catch (IOException ioException) {
@@ -49,7 +55,9 @@ public class WebServer implements Runnable {
     }
 
     public void run() {
+
         while (isRunning.get()) {
+
             try {
                 serverThreadPool.execute(new WebServerWorker(serverSocket.accept(), config));
             } catch (IOException ioException) {
@@ -60,5 +68,7 @@ public class WebServer implements Runnable {
                 ioException.printStackTrace();
             }
         }
+
+        serverThreadPool.shutdown();
     }
 }

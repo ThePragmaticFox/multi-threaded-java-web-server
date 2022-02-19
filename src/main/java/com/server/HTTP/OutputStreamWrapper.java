@@ -1,11 +1,12 @@
 package com.server.HTTP;
 
 import java.io.BufferedOutputStream;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.StringWriter;
 
-public class OutputStreamWrapper implements AutoCloseable {
+public class OutputStreamWrapper implements Closeable {
 
     private final StringWriter stringWriter;
     private final OutputStream outputStream;

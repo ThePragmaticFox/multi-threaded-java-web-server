@@ -1,6 +1,6 @@
 package com.server.HTTP.Literals;
 
-public enum StatusCodes {
+public enum StatusCode {
     OK("200 OK"),
     BAD_REQUEST("400 Bad Request"),
     NOT_FOUND("404 Not Found"),
@@ -10,7 +10,7 @@ public enum StatusCodes {
 
     private final String literal;
 
-    private StatusCodes(final String literal) {
+    private StatusCode(final String literal) {
         this.literal = literal;
     }
 

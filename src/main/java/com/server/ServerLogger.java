@@ -1,10 +1,17 @@
 package com.server;
 
+import java.lang.System.Logger.Level;
 import java.util.List;
 import com.server.HTTP.OutputStreamWrapper;
 
 public class ServerLogger {
-    public static void printDebug(final List<String> headerLines, final OutputStreamWrapper outputStream) {
+
+    private static final Level level = Level.DEBUG;
+
+    public static void log(final List<String> headerLines, final OutputStreamWrapper outputStream) {
+        if (level.getSeverity() < Level.DEBUG.getSeverity()) {
+            return;
+        }
         System.out.println("Request:\n");
         System.out.println(headerLines.stream().reduce("", (x, y) -> x + y + "\n"));
         System.out.println();
