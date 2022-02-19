@@ -35,7 +35,7 @@ public class RequestHandler {
             } else {
                 ResponseWriter.header400(Version.HTTP_1_1, outputStream);
             }
-            ServerLogger.printDebug(headerLines, outputStream);
+            //ServerLogger.printDebug(headerLines, outputStream);
         } catch (IOException ioException) {
             ioException.printStackTrace();
         }
