@@ -18,17 +18,10 @@ import java.util.Optional;
 
 public class WebServer implements Runnable {
 
-    private static final int BUFFER_SIZE = 1024;
-    private final static int DEFAULT_PORT = 9090;
-
-    // The buffer into which we'll read data when it's available
-    private ByteBuffer readBuffer = ByteBuffer.allocate(BUFFER_SIZE);
-
     private final WebServerConfig config;
     private final AtomicBoolean isRunning;
     private final ExecutorService serverThreadPool;
     private final Selector selector;
-    // private final List<WebServerWorker> serverThreadPool;
 
     public WebServer(final WebServerConfig webServerConfig) throws IOException {
         config = webServerConfig;
@@ -89,7 +82,7 @@ public class WebServer implements Runnable {
                     if (key.isAcceptable()) {
                         final ServerSocketChannel serverSocketChannel = (ServerSocketChannel) key.channel();
                         final SocketChannel socketChannel = serverSocketChannel.accept();
-                        //socketChannel.configureBlocking(false);
+                        // socketChannel.configureBlocking(false);
                         ServerLogger.log(Level.DEBUG, "Client is connected.");
                         serverThreadPool.execute(new WebServerWorker(config, socketChannel.socket()));
                     }
