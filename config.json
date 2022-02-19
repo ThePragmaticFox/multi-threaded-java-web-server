@@ -2,6 +2,6 @@
     "root": "www",
     "host": "0.0.0.0",
     "port": 3000,
-    "nbPoolThreads": 24,
-    "backlogSize": 100
+    "nbPoolThreads": 250,
+    "backlogSize": 1000
 }
