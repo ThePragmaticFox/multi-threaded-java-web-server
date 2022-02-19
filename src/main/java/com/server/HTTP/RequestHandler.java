@@ -1,6 +1,7 @@
 package com.server.HTTP;
 
 import java.io.IOException;
+import java.lang.System.Logger.Level;
 import java.net.Socket;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -40,7 +41,7 @@ public class RequestHandler {
             ServerLogger.log(headerLines, outputStream);
 
         } catch (IOException ioException) {
-            ioException.printStackTrace();
+            ServerLogger.log(Level.WARNING, ioException.getMessage());
         }
     }
 

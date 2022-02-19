@@ -2,6 +2,7 @@ package com.server;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.lang.System.Logger.Level;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import com.google.gson.Gson;
@@ -57,13 +58,13 @@ public class WebServerConfig {
         try (Reader reader = Files.newBufferedReader(Paths.get(configPath))) {
             webServerConfig = gson.fromJson(reader, WebServerConfig.class);
         } catch (JsonSyntaxException | JsonIOException | IOException e) {
-            e.printStackTrace();
+            ServerLogger.log(Level.WARNING, e.getMessage());
         }
         if (webServerConfig != null) {
             return webServerConfig;
         }
-        System.out.println("Couldn't read config from path: " + configPath);
-        System.out.println(String.format(
+        ServerLogger.log(Level.WARNING, "Couldn't read config from path: " + configPath);
+        ServerLogger.log(Level.WARNING, String.format(
                 "Using default config: root = %s, host = %s, port = %s, nb_pool_threads = %s, backlog_size = %s", ROOT,
                 HOST, PORT, NB_POOL_THREADS, BACKLOG_SIZE));
         return new WebServerConfig(ROOT, HOST, PORT, NB_POOL_THREADS, BACKLOG_SIZE);

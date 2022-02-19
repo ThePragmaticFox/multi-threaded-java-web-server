@@ -38,7 +38,7 @@ public class WebServer implements Runnable {
         try {
             webServer = new WebServer(webServerConfig);
         } catch (IOException ioException) {
-            ioException.printStackTrace();
+            ServerLogger.log(Level.WARNING, ioException.getMessage());
         }
 
         if (webServer != null) {
@@ -56,7 +56,7 @@ public class WebServer implements Runnable {
         try {
             serverSocket.close();
         } catch (IOException ioException) {
-            ioException.printStackTrace();
+            ServerLogger.log(Level.WARNING, ioException.getMessage());
         }
     }
 

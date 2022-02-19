@@ -1,5 +1,6 @@
 package com.server;
 
+import java.lang.System.Logger.Level;
 import java.util.Optional;
 
 public class Main {
@@ -8,8 +9,8 @@ public class Main {
         final WebServerConfig webServerConfig = WebServerConfig.importConfig(path);
         final Optional<WebServer> webServer = WebServer.start(webServerConfig);
         if (webServer.isEmpty()) {
-            System.out.println("Creation of web server failed.");
-            System.out.println("Exit program.");
+            ServerLogger.log(Level.ERROR, "Creation of web server failed.");
+            ServerLogger.log(Level.ERROR, "Exit program.");
             System.exit(1);
         }
     }
