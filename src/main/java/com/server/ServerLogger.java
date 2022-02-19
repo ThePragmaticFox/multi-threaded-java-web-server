@@ -6,7 +6,7 @@ import com.server.HTTP.OutputStreamWrapper;
 
 public class ServerLogger {
 
-    private static final Level LEVEL = Level.ALL;
+    private static final Level LEVEL = Level.ERROR;
 
     public static void log(final Level level, final String message) {
         if (LEVEL.getSeverity() > level.getSeverity()) {

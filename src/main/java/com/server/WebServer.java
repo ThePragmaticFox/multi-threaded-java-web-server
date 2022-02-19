@@ -2,33 +2,48 @@ package com.server;
 
 import java.io.IOException;
 import java.lang.System.Logger.Level;
-import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.util.concurrent.CountDownLatch;
+import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
+import java.nio.channels.spi.SelectorProvider;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.IntStream;
+import java.util.Iterator;
 import java.util.Optional;
 
 public class WebServer implements Runnable {
 
+    private static final int BUFFER_SIZE = 1024;
+    private final static int DEFAULT_PORT = 9090;
+
+    // The buffer into which we'll read data when it's available
+    private ByteBuffer readBuffer = ByteBuffer.allocate(BUFFER_SIZE);
+
     private final WebServerConfig config;
     private final AtomicBoolean isRunning;
-    private final InetAddress hostInetAddress;
-    private final ServerSocket serverSocket;
-    private final CountDownLatch isRunningLatch;
     private final ExecutorService serverThreadPool;
+    private final Selector selector;
     // private final List<WebServerWorker> serverThreadPool;
 
     public WebServer(final WebServerConfig webServerConfig) throws IOException {
         config = webServerConfig;
         isRunning = new AtomicBoolean(true);
-        hostInetAddress = InetAddress.getByName(config.getHost());
-        serverSocket = new ServerSocket(config.getPort(), config.getBacklogSize(), hostInetAddress);
-        isRunningLatch = new CountDownLatch(1);
+        selector = initSelector();
         serverThreadPool = Executors.newFixedThreadPool(config.getNbPoolThreads());
+    }
+
+    private Selector initSelector() throws IOException {
+        final Selector socketSelector = SelectorProvider.provider().openSelector();
+        final ServerSocketChannel serverChannel = ServerSocketChannel.open();
+        serverChannel.configureBlocking(false);
+        serverChannel.socket().bind(new InetSocketAddress(config.getHost(), config.getPort()));
+        serverChannel.register(socketSelector, SelectionKey.OP_ACCEPT);
+        return socketSelector;
     }
 
     public static Optional<WebServer> start(final WebServerConfig webServerConfig) {
@@ -52,9 +67,8 @@ public class WebServer implements Runnable {
 
     public synchronized void stop() {
         isRunning.set(false);
-        isRunningLatch.countDown();
         try {
-            serverSocket.close();
+            selector.close();
         } catch (IOException ioException) {
             ServerLogger.log(Level.WARNING, ioException.getMessage());
         }
@@ -62,27 +76,38 @@ public class WebServer implements Runnable {
 
     @Override
     public void run() {
-        try {
-            IntStream.range(0, config.getNbPoolThreads()).boxed()
-                    .forEach(index -> serverThreadPool.execute(new WebServerWorker(config, isRunning, serverSocket)));
-            isRunningLatch.await();
-            if (!serverThreadPool.awaitTermination(60, TimeUnit.SECONDS)) {
-                serverThreadPool.shutdownNow();
-                if (!serverThreadPool.awaitTermination(60, TimeUnit.SECONDS))
-                    ServerLogger.log(Level.WARNING, "Server thread pool has dangling threads.");
+        while (isRunning.get()) {
+            try {
+                selector.select();
+                final Iterator<SelectionKey> selectedKeys = selector.selectedKeys().iterator();
+                while (selectedKeys.hasNext()) {
+                    final SelectionKey key = selectedKeys.next();
+                    selectedKeys.remove();
+                    if (!key.isValid()) {
+                        continue;
+                    }
+                    if (key.isAcceptable()) {
+                        final ServerSocketChannel serverSocketChannel = (ServerSocketChannel) key.channel();
+                        final SocketChannel socketChannel = serverSocketChannel.accept();
+                        //socketChannel.configureBlocking(false);
+                        ServerLogger.log(Level.DEBUG, "Client is connected.");
+                        serverThreadPool.execute(new WebServerWorker(config, socketChannel.socket()));
+                    }
+                }
+            } catch (Exception e) {
+                if (isRunning.get()) {
+                    ServerLogger.log(Level.ERROR, e.getMessage());
+                } else {
+                    try {
+                        serverThreadPool.shutdown();
+                        serverThreadPool.awaitTermination(60, TimeUnit.SECONDS);
+                    } catch (InterruptedException e1) {
+                        ServerLogger.log(Level.INFO, e1.getMessage());
+                        serverThreadPool.shutdownNow();
+                    }
+                    ServerLogger.log(Level.INFO, "Server shutdown.");
+                }
             }
-        } catch (InterruptedException iException) {
-            if (isRunning.get()) {
-                ServerLogger.log(Level.DEBUG, iException.getMessage());
-            } else {
-                ServerLogger.log(Level.WARNING, "Forcing Threads to shutdown.");
-                serverThreadPool.shutdownNow();
-            }
-        }
-        if (serverThreadPool.isTerminated()) {
-            ServerLogger.log(Level.INFO, "Server thread pool shutdown.");
-        } else {
-            ServerLogger.log(Level.INFO, "Server thread pool shutdown failed; dangling threads remain.");
         }
     }
 }
