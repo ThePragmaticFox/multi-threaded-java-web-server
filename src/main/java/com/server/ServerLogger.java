@@ -1,31 +1,32 @@
 package com.server;
 
-import java.lang.System.Logger.Level;
+import java.util.logging.Level;
 import java.util.List;
 import com.server.HTTP.OutputStreamWrapper;
+import com.server.HTTP.Literals.Other;
 
 public class ServerLogger {
 
-    private static final Level LEVEL = Level.INFO;
+    private static final Level LEVEL = Level.FINE;
 
     public static void log(final Level level, final String message) {
-        if (LEVEL.getSeverity() > level.getSeverity()) {
+        if (LEVEL.intValue() > level.intValue()) {
             return;
         }
         System.out.println(message);
     }
 
     public static void log(final Level level, final List<String> headerLines, final OutputStreamWrapper outputStream) {
-        if (LEVEL.getSeverity() > level.getSeverity()) {
+        if (LEVEL.intValue() > level.intValue()) {
             return;
         }
-        System.out.println("Request:\n");
-        System.out.println(headerLines.stream().reduce("", (x, y) -> x + y + "\n"));
-        System.out.println();
-        System.out.println("Response:\n");
-        final String debugString = outputStream.toString(0, 250);
-        System.out.println(debugString + "\n");
-        System.out.println(new String(new char[79]).replace("\0", "-"));
-        System.out.println();
+        final StringBuilder builder = new StringBuilder();
+        final String logString = builder.append("Request:").append(Other.NEWLINE.getString())
+                .append(headerLines.stream().reduce(Other.EMPTY.getString(),
+                        (x, y) -> x + y + Other.NEWLINE.getString()))
+                .append(Other.NEWLINE.getString()).append("Response:").append(Other.NEWLINE.getString())
+                .append(outputStream.toString(0, 250)).append(Other.NEWLINE.getString())
+                .append(new String(new char[79]).replace("\0", "-")).append(Other.NEWLINE.getString()).toString();
+        System.out.print(logString);
     }
 }

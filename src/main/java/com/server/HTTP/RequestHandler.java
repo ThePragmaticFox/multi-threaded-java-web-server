@@ -1,7 +1,6 @@
 package com.server.HTTP;
 
 import java.io.IOException;
-import java.lang.System.Logger.Level;
 import java.net.Socket;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -9,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
 import com.server.ServerLogger;
 import com.server.WebServerConfig;
 import com.server.HTTP.Literals.StatusCode;
@@ -38,7 +38,7 @@ public class RequestHandler {
                 ResponseHandler.getResponse(header.get(), outputStream);
             }
 
-            ServerLogger.log(Level.DEBUG, headerLines, outputStream);
+            ServerLogger.log(Level.FINEST, headerLines, outputStream);
 
         } catch (IOException ioException) {
             ServerLogger.log(Level.WARNING, ioException.getMessage());

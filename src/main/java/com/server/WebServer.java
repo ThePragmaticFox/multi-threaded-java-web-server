@@ -1,7 +1,7 @@
 package com.server;
 
 import java.io.IOException;
-import java.lang.System.Logger.Level;
+import java.util.logging.Level;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.util.concurrent.ExecutorService;
@@ -38,6 +38,7 @@ public class WebServer implements Runnable {
         if (webServer != null) {
             final Thread mainServerThread = new Thread(webServer);
             mainServerThread.start();
+            ServerLogger.log(Level.INFO, "Server started.");
             return Optional.of(webServer);
         }
 
@@ -60,7 +61,7 @@ public class WebServer implements Runnable {
                 serverThreadPool.execute(new WebServerWorker(config, serverSocket.accept()));
             } catch (IOException ioException) {
                 if (isRunning.get()) {
-                    ServerLogger.log(Level.ERROR, ioException.getMessage());
+                    ServerLogger.log(Level.SEVERE, ioException.getMessage());
                 } else {
                     serverShutdown();
                 }
