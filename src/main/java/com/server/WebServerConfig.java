@@ -14,8 +14,8 @@ public class WebServerConfig {
     private static final String ROOT = "www";
     private static final String HOST = "0.0.0.0";
     private static final int PORT = 3000;
-    private static final int NB_POOL_THREADS = 3;
-    private static final int BACKLOG_SIZE = 1000;
+    private static final int NB_POOL_THREADS = 24;
+    private static final int BACKLOG_SIZE = 100;
 
     private final String root;
     private final String host;

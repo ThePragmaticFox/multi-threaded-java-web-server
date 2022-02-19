@@ -38,7 +38,7 @@ public class RequestHandler {
                 ResponseHandler.getResponse(header.get(), outputStream);
             }
 
-            ServerLogger.log(headerLines, outputStream);
+            ServerLogger.log(Level.DEBUG, headerLines, outputStream);
 
         } catch (IOException ioException) {
             ServerLogger.log(Level.WARNING, ioException.getMessage());

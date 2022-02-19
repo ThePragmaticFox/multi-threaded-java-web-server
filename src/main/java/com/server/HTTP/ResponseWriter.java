@@ -15,6 +15,16 @@ public class ResponseWriter {
 
     private static final int PACKET_SIZE = 65536;
 
+    private static String getContentType(final FileExtension ext) {
+        if (ext.equals(FileExtension.UNKNOWN)) {
+            return Other.EMPTY.getString();
+        }
+        final StringBuilder builder = new StringBuilder();
+        builder.append(ext.getString()).append(Other.NEWLINE.getString()).append(Options.NO_SNIFF.getString())
+                .append(Other.NEWLINE.getString());
+        return builder.toString();
+    }
+
     public static void header200(final Version version, final Path path, final OutputStreamWrapper outputStream)
             throws IOException {
         final String extensionStr = FilenameUtils.getExtension(path.toString());
@@ -38,24 +48,10 @@ public class ResponseWriter {
         fileInputStream.close();
     }
 
-    public static void headerError(final String statusCode, final OutputStreamWrapper outputStream)
-            throws IOException {
+    public static void headerError(final String statusCode, final OutputStreamWrapper outputStream) throws IOException {
         final StringBuilder builder = new StringBuilder();
         builder.append(statusCode).append(Other.NEWLINE.getString()).append(Options.CONNECTION_CLOSE.getString())
                 .append(Other.NEW_EMPTYLINE.getString());
         outputStream.write(builder.toString().getBytes());
-    }
-
-    private static String getContentType(final FileExtension ext) {
-        if (ext.equals(FileExtension.UNKNOWN)) {
-            return Other.EMPTY.getString();
-        }
-        final StringBuilder builder = new StringBuilder();
-        builder.append(ext.getString());
-        builder.append(Other.NEWLINE.getString());
-        // recommended security header if file extension is known
-        builder.append(Options.NO_SNIFF.getString());
-        builder.append(Other.NEWLINE.getString());
-        return builder.toString();
     }
 }

@@ -2,40 +2,27 @@ package com.server;
 
 import java.io.IOException;
 import java.lang.System.Logger.Level;
-import java.net.InetSocketAddress;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.nio.channels.ServerSocketChannel;
-import java.nio.channels.SocketChannel;
-import java.nio.channels.spi.SelectorProvider;
+import java.net.InetAddress;
+import java.net.ServerSocket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.Iterator;
 import java.util.Optional;
 
 public class WebServer implements Runnable {
 
     private final WebServerConfig config;
     private final AtomicBoolean isRunning;
+    private final ServerSocket serverSocket;
     private final ExecutorService serverThreadPool;
-    private final Selector selector;
 
     public WebServer(final WebServerConfig webServerConfig) throws IOException {
         config = webServerConfig;
         isRunning = new AtomicBoolean(true);
-        selector = initSelector();
+        serverSocket =
+                new ServerSocket(config.getPort(), config.getBacklogSize(), InetAddress.getByName(config.getHost()));
         serverThreadPool = Executors.newFixedThreadPool(config.getNbPoolThreads());
-    }
-
-    private Selector initSelector() throws IOException {
-        final Selector socketSelector = SelectorProvider.provider().openSelector();
-        final ServerSocketChannel serverChannel = ServerSocketChannel.open();
-        serverChannel.configureBlocking(false);
-        serverChannel.socket().bind(new InetSocketAddress(config.getHost(), config.getPort()));
-        serverChannel.register(socketSelector, SelectionKey.OP_ACCEPT);
-        return socketSelector;
     }
 
     public static Optional<WebServer> start(final WebServerConfig webServerConfig) {
@@ -60,7 +47,7 @@ public class WebServer implements Runnable {
     public synchronized void stop() {
         isRunning.set(false);
         try {
-            selector.close();
+            serverSocket.close();
         } catch (IOException ioException) {
             ServerLogger.log(Level.WARNING, ioException.getMessage());
         }
@@ -70,36 +57,25 @@ public class WebServer implements Runnable {
     public void run() {
         while (isRunning.get()) {
             try {
-                selector.select();
-                final Iterator<SelectionKey> selectedKeys = selector.selectedKeys().iterator();
-                while (selectedKeys.hasNext()) {
-                    final SelectionKey key = selectedKeys.next();
-                    selectedKeys.remove();
-                    if (!key.isValid()) {
-                        continue;
-                    }
-                    if (key.isAcceptable()) {
-                        final ServerSocketChannel serverSocketChannel = (ServerSocketChannel) key.channel();
-                        final SocketChannel socketChannel = serverSocketChannel.accept();
-                        // socketChannel.configureBlocking(false);
-                        ServerLogger.log(Level.DEBUG, "Client is connected.");
-                        serverThreadPool.execute(new WebServerWorker(config, socketChannel.socket()));
-                    }
-                }
-            } catch (Exception e) {
+                serverThreadPool.execute(new WebServerWorker(config, serverSocket.accept()));
+            } catch (IOException ioException) {
                 if (isRunning.get()) {
-                    ServerLogger.log(Level.ERROR, e.getMessage());
+                    ServerLogger.log(Level.ERROR, ioException.getMessage());
                 } else {
-                    try {
-                        serverThreadPool.shutdown();
-                        serverThreadPool.awaitTermination(60, TimeUnit.SECONDS);
-                    } catch (InterruptedException e1) {
-                        ServerLogger.log(Level.INFO, e1.getMessage());
-                        serverThreadPool.shutdownNow();
-                    }
-                    ServerLogger.log(Level.INFO, "Server shutdown.");
+                    serverShutdown();
                 }
             }
         }
+    }
+
+    private synchronized void serverShutdown() {
+        try {
+            serverThreadPool.shutdown();
+            serverThreadPool.awaitTermination(60, TimeUnit.SECONDS);
+        } catch (InterruptedException e1) {
+            ServerLogger.log(Level.INFO, e1.getMessage());
+            serverThreadPool.shutdownNow();
+        }
+        ServerLogger.log(Level.INFO, "Server shutdown.");
     }
 }
