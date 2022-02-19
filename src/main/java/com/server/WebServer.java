@@ -5,6 +5,7 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.Optional;
 import com.server.HTTP.RequestHandler;
 
 public class WebServer implements Runnable {
@@ -21,16 +22,19 @@ public class WebServer implements Runnable {
         this.serverSocket = new ServerSocket(this.config.getPort(), this.config.getBacklogSize(), this.hostInetAddress);
     }
 
-    public static WebServer start(final WebServerConfig webServerConfig) {
+    public static Optional<WebServer> start(final WebServerConfig webServerConfig) {
         WebServer webServer = null;
         try {
             webServer = new WebServer(webServerConfig);
         } catch (IOException ioException) {
             ioException.printStackTrace();
         }
-        final Thread mainServerThread = new Thread(webServer);
-        mainServerThread.start();
-        return webServer;
+        if (webServer != null) {
+            final Thread mainServerThread = new Thread(webServer);
+            mainServerThread.start();
+            return Optional.of(webServer);
+        }
+        return Optional.empty();
     }
 
     public synchronized void stop() {
@@ -48,7 +52,7 @@ public class WebServer implements Runnable {
                 RequestHandler.handle(clientSocket, config);
             } catch (IOException ioException) {
                 if (!this.isRunning.get()) {
-                    System.out.println("Server shutdown");
+                    System.out.println("Server shutdown.");
                     break;
                 }
                 ioException.printStackTrace();

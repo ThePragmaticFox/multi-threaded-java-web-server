@@ -1,6 +1,7 @@
 package com.server;
 
 import static org.junit.Assert.assertEquals;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import kong.unirest.HttpResponse;
@@ -27,18 +28,18 @@ public class TestWebServer {
         // given
         final WebServerConfig config = getWebServerConfig(3125);
         final String baseAddr = "http://" + config.getHost() + ":" + config.getPort() + "/";
-
         // when
-        final WebServer server = WebServer.start(config);
-        final HttpResponse<String> res1 = Unirest.get(baseAddr).asString();
-        final HttpResponse<String> res2 = Unirest.get(baseAddr + "about").asString();
-        server.stop();
+        WebServer.start(config).ifPresentOrElse(server -> {
+            final HttpResponse<String> res1 = Unirest.get(baseAddr).asString();
+            final HttpResponse<String> res2 = Unirest.get(baseAddr + "about").asString();
+            server.stop();
 
-        // then
-        assertEquals(200, res1.getStatus());
-        assertEquals("OK", res1.getStatusText());
-        assertEquals(200, res2.getStatus());
-        assertEquals("OK", res2.getStatusText());
+            // then
+            assertEquals(200, res1.getStatus());
+            assertEquals("OK", res1.getStatusText());
+            assertEquals(200, res2.getStatus());
+            assertEquals("OK", res2.getStatusText());
+        }, () -> Assert.fail("Web server couldn't be started."));
     }
 
     @Test
@@ -48,13 +49,14 @@ public class TestWebServer {
         final String baseAddr = "http://" + config.getHost() + ":" + config.getPort() + "/";
 
         // when
-        final WebServer server = WebServer.start(config);
-        final HttpResponse<String> res = Unirest.get(baseAddr + "hidden").asString();
-        server.stop();
+        WebServer.start(config).ifPresentOrElse(server -> {
+            final HttpResponse<String> res = Unirest.get(baseAddr + "hidden").asString();
+            server.stop();
 
-        // then
-        assertEquals(404, res.getStatus());
-        assertEquals("Not Found", res.getStatusText());
+            // then
+            assertEquals(404, res.getStatus());
+            assertEquals("Not Found", res.getStatusText());
+        }, () -> Assert.fail("Web server couldn't be started."));
     }
 
     @Test
@@ -64,19 +66,20 @@ public class TestWebServer {
         final String baseAddr = "http://" + config.getHost() + ":" + config.getPort() + "/";
 
         // when
-        final WebServer server = WebServer.start(config);
-        final HttpResponse<String> res1 = Unirest.head(baseAddr).asString();
-        final HttpResponse<String> res2 = Unirest.head(baseAddr + "about").asString();
-        final HttpResponse<String> res3 = Unirest.head(baseAddr + "hidden").asString();
-        server.stop();
+        WebServer.start(config).ifPresentOrElse(server -> {
+            final HttpResponse<String> res1 = Unirest.head(baseAddr).asString();
+            final HttpResponse<String> res2 = Unirest.head(baseAddr + "about").asString();
+            final HttpResponse<String> res3 = Unirest.head(baseAddr + "hidden").asString();
+            server.stop();
 
-        // then
-        assertEquals(501, res1.getStatus());
-        assertEquals("Not Implemented", res1.getStatusText());
-        assertEquals(501, res2.getStatus());
-        assertEquals("Not Implemented", res2.getStatusText());
-        assertEquals(501, res3.getStatus());
-        assertEquals("Not Implemented", res3.getStatusText());
+            // then
+            assertEquals(501, res1.getStatus());
+            assertEquals("Not Implemented", res1.getStatusText());
+            assertEquals(501, res2.getStatus());
+            assertEquals("Not Implemented", res2.getStatusText());
+            assertEquals(501, res3.getStatus());
+            assertEquals("Not Implemented", res3.getStatusText());
+        }, () -> Assert.fail("Web server couldn't be started."));
     }
 
     @Test
@@ -86,19 +89,20 @@ public class TestWebServer {
         final String baseAddr = "http://" + config.getHost() + ":" + config.getPort() + "/";
 
         // when
-        final WebServer server = WebServer.start(config);
-        final HttpResponse<String> res1 = Unirest.post(baseAddr).asString();
-        final HttpResponse<String> res2 = Unirest.post(baseAddr + "about").asString();
-        final HttpResponse<String> res3 = Unirest.post(baseAddr + "hidden").asString();
-        server.stop();
+        WebServer.start(config).ifPresentOrElse(server -> {
+            final HttpResponse<String> res1 = Unirest.post(baseAddr).asString();
+            final HttpResponse<String> res2 = Unirest.post(baseAddr + "about").asString();
+            final HttpResponse<String> res3 = Unirest.post(baseAddr + "hidden").asString();
+            server.stop();
 
-        // then
-        assertEquals(501, res1.getStatus());
-        assertEquals("Not Implemented", res1.getStatusText());
-        assertEquals(501, res2.getStatus());
-        assertEquals("Not Implemented", res2.getStatusText());
-        assertEquals(501, res3.getStatus());
-        assertEquals("Not Implemented", res3.getStatusText());
+            // then
+            assertEquals(501, res1.getStatus());
+            assertEquals("Not Implemented", res1.getStatusText());
+            assertEquals(501, res2.getStatus());
+            assertEquals("Not Implemented", res2.getStatusText());
+            assertEquals(501, res3.getStatus());
+            assertEquals("Not Implemented", res3.getStatusText());
+        }, () -> Assert.fail("Web server couldn't be started."));
     }
 
     @Test
@@ -108,19 +112,20 @@ public class TestWebServer {
         final String baseAddr = "http://" + config.getHost() + ":" + config.getPort() + "/";
 
         // when
-        final WebServer server = WebServer.start(config);
-        final HttpResponse<String> res1 = Unirest.put(baseAddr).asString();
-        final HttpResponse<String> res2 = Unirest.put(baseAddr + "about").asString();
-        final HttpResponse<String> res3 = Unirest.put(baseAddr + "hidden").asString();
-        server.stop();
+        WebServer.start(config).ifPresentOrElse(server -> {
+            final HttpResponse<String> res1 = Unirest.put(baseAddr).asString();
+            final HttpResponse<String> res2 = Unirest.put(baseAddr + "about").asString();
+            final HttpResponse<String> res3 = Unirest.put(baseAddr + "hidden").asString();
+            server.stop();
 
-        // then
-        assertEquals(501, res1.getStatus());
-        assertEquals("Not Implemented", res1.getStatusText());
-        assertEquals(501, res2.getStatus());
-        assertEquals("Not Implemented", res2.getStatusText());
-        assertEquals(501, res3.getStatus());
-        assertEquals("Not Implemented", res3.getStatusText());
+            // then
+            assertEquals(501, res1.getStatus());
+            assertEquals("Not Implemented", res1.getStatusText());
+            assertEquals(501, res2.getStatus());
+            assertEquals("Not Implemented", res2.getStatusText());
+            assertEquals(501, res3.getStatus());
+            assertEquals("Not Implemented", res3.getStatusText());
+        }, () -> Assert.fail("Web server couldn't be started."));
     }
 
     @Test
@@ -130,19 +135,20 @@ public class TestWebServer {
         final String baseAddr = "http://" + config.getHost() + ":" + config.getPort() + "/";
 
         // when
-        final WebServer server = WebServer.start(config);
-        final HttpResponse<String> res1 = Unirest.delete(baseAddr).asString();
-        final HttpResponse<String> res2 = Unirest.delete(baseAddr + "about").asString();
-        final HttpResponse<String> res3 = Unirest.delete(baseAddr + "hidden").asString();
-        server.stop();
+        WebServer.start(config).ifPresentOrElse(server -> {
+            final HttpResponse<String> res1 = Unirest.delete(baseAddr).asString();
+            final HttpResponse<String> res2 = Unirest.delete(baseAddr + "about").asString();
+            final HttpResponse<String> res3 = Unirest.delete(baseAddr + "hidden").asString();
+            server.stop();
 
-        // then
-        assertEquals(501, res1.getStatus());
-        assertEquals("Not Implemented", res1.getStatusText());
-        assertEquals(501, res2.getStatus());
-        assertEquals("Not Implemented", res2.getStatusText());
-        assertEquals(501, res3.getStatus());
-        assertEquals("Not Implemented", res3.getStatusText());
+            // then
+            assertEquals(501, res1.getStatus());
+            assertEquals("Not Implemented", res1.getStatusText());
+            assertEquals(501, res2.getStatus());
+            assertEquals("Not Implemented", res2.getStatusText());
+            assertEquals(501, res3.getStatus());
+            assertEquals("Not Implemented", res3.getStatusText());
+        }, () -> Assert.fail("Web server couldn't be started."));
     }
 
     @Test
@@ -152,19 +158,20 @@ public class TestWebServer {
         final String baseAddr = "http://" + config.getHost() + ":" + config.getPort() + "/";
 
         // when
-        final WebServer server = WebServer.start(config);
-        final HttpResponse<String> res1 = Unirest.patch(baseAddr).asString();
-        final HttpResponse<String> res2 = Unirest.patch(baseAddr + "about").asString();
-        final HttpResponse<String> res3 = Unirest.patch(baseAddr + "hidden").asString();
-        server.stop();
+        WebServer.start(config).ifPresentOrElse(server -> {
+            final HttpResponse<String> res1 = Unirest.patch(baseAddr).asString();
+            final HttpResponse<String> res2 = Unirest.patch(baseAddr + "about").asString();
+            final HttpResponse<String> res3 = Unirest.patch(baseAddr + "hidden").asString();
+            server.stop();
 
-        // then
-        assertEquals(501, res1.getStatus());
-        assertEquals("Not Implemented", res1.getStatusText());
-        assertEquals(501, res2.getStatus());
-        assertEquals("Not Implemented", res2.getStatusText());
-        assertEquals(501, res3.getStatus());
-        assertEquals("Not Implemented", res3.getStatusText());
+            // then
+            assertEquals(501, res1.getStatus());
+            assertEquals("Not Implemented", res1.getStatusText());
+            assertEquals(501, res2.getStatus());
+            assertEquals("Not Implemented", res2.getStatusText());
+            assertEquals(501, res3.getStatus());
+            assertEquals("Not Implemented", res3.getStatusText());
+        }, () -> Assert.fail("Web server couldn't be started."));
     }
 
     @Test
@@ -174,18 +181,19 @@ public class TestWebServer {
         final String baseAddr = "http://" + config.getHost() + ":" + config.getPort() + "/";
 
         // when
-        final WebServer server = WebServer.start(config);
-        final HttpResponse<String> res1 = Unirest.options(baseAddr).asString();
-        final HttpResponse<String> res2 = Unirest.options(baseAddr + "about").asString();
-        final HttpResponse<String> res3 = Unirest.options(baseAddr + "hidden").asString();
-        server.stop();
+        WebServer.start(config).ifPresentOrElse(server -> {
+            final HttpResponse<String> res1 = Unirest.options(baseAddr).asString();
+            final HttpResponse<String> res2 = Unirest.options(baseAddr + "about").asString();
+            final HttpResponse<String> res3 = Unirest.options(baseAddr + "hidden").asString();
+            server.stop();
 
-        // then
-        assertEquals(501, res1.getStatus());
-        assertEquals("Not Implemented", res1.getStatusText());
-        assertEquals(501, res2.getStatus());
-        assertEquals("Not Implemented", res2.getStatusText());
-        assertEquals(501, res3.getStatus());
-        assertEquals("Not Implemented", res3.getStatusText());
+            // then
+            assertEquals(501, res1.getStatus());
+            assertEquals("Not Implemented", res1.getStatusText());
+            assertEquals(501, res2.getStatus());
+            assertEquals("Not Implemented", res2.getStatusText());
+            assertEquals(501, res3.getStatus());
+            assertEquals("Not Implemented", res3.getStatusText());
+        }, () -> Assert.fail("Web server couldn't be started."));
     }
 }

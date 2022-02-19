@@ -1,12 +1,14 @@
 package com.server.HTTP.Literals;
 
-public enum Version {
-    HTTP_1_1("HTTP/1.1"), UNKNOWN("HTTP/1.1");
+import java.util.Optional;
 
-    public static Version getVersion(final String version) {
+public enum Version {
+    HTTP_1_1("HTTP/1.1");
+
+    public static Optional<Version> getVersion(final String version) {
         return switch (version) {
-            case "HTTP/1.1" -> HTTP_1_1;
-            default -> UNKNOWN;
+            case "HTTP/1.1" -> Optional.of(HTTP_1_1);
+            default -> Optional.empty();
         };
     }
 
