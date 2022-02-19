@@ -26,13 +26,7 @@ The [test website](http://65.21.145.57) used in the www/ folder is taken from [S
 
 There's a very small [loadTest.py](scripts/loadTest.py) script in the repository that makes use of [Locust](https://locust.io). To run it simply use
 
-> locust -f scripts/loadTest.py 
-
-To run multi-threaded use the following, in different processes:
-
-> locust -f scripts/loadTest.py --master
-
-> locust -f scripts/loadTest.py --worker
+> locust -f scripts/loadTest.py
 
 An example [Locust report](http://65.21.145.57/report) was made using the tool for the test website running on this server.
 
