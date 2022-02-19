@@ -4,9 +4,10 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.Optional;
-import com.server.HTTP.RequestHandler;
 
 public class WebServer implements Runnable {
 
@@ -14,12 +15,14 @@ public class WebServer implements Runnable {
     private final AtomicBoolean isRunning;
     private final InetAddress hostInetAddress;
     private final ServerSocket serverSocket;
+    private final ExecutorService serverThreadPool;
 
     public WebServer(final WebServerConfig webServerConfig) throws IOException {
-        this.config = webServerConfig;
-        this.isRunning = new AtomicBoolean(true);
-        this.hostInetAddress = InetAddress.getByName(this.config.getHost());
-        this.serverSocket = new ServerSocket(this.config.getPort(), this.config.getBacklogSize(), this.hostInetAddress);
+        config = webServerConfig;
+        isRunning = new AtomicBoolean(true);
+        hostInetAddress = InetAddress.getByName(config.getHost());
+        serverSocket = new ServerSocket(config.getPort(), config.getBacklogSize(), hostInetAddress);
+        serverThreadPool = Executors.newFixedThreadPool(config.getNbPoolThreads());
     }
 
     public static Optional<WebServer> start(final WebServerConfig webServerConfig) {
@@ -38,9 +41,9 @@ public class WebServer implements Runnable {
     }
 
     public synchronized void stop() {
-        this.isRunning.set(false);
+        isRunning.set(false);
         try {
-            this.serverSocket.close();
+            serverSocket.close();
         } catch (IOException ioException) {
             ioException.printStackTrace();
         }
@@ -48,10 +51,10 @@ public class WebServer implements Runnable {
 
     public void run() {
         while (isRunning.get()) {
-            try (final Socket clientSocket = this.serverSocket.accept()) {
-                RequestHandler.handle(clientSocket, config);
+            try {
+                serverThreadPool.execute(new WebServerWorker(serverSocket.accept(), config));
             } catch (IOException ioException) {
-                if (!this.isRunning.get()) {
+                if (!isRunning.get()) {
                     System.out.println("Server shutdown.");
                     break;
                 }
