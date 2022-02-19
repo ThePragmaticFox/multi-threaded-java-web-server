@@ -1,11 +1,15 @@
 package com.server;
 
 import java.io.IOException;
+import java.lang.System.Logger.Level;
 import java.net.InetAddress;
 import java.net.ServerSocket;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.IntStream;
 import java.util.Optional;
 
 public class WebServer implements Runnable {
@@ -14,13 +18,16 @@ public class WebServer implements Runnable {
     private final AtomicBoolean isRunning;
     private final InetAddress hostInetAddress;
     private final ServerSocket serverSocket;
+    private final CountDownLatch isRunningLatch;
     private final ExecutorService serverThreadPool;
+    // private final List<WebServerWorker> serverThreadPool;
 
     public WebServer(final WebServerConfig webServerConfig) throws IOException {
         config = webServerConfig;
         isRunning = new AtomicBoolean(true);
         hostInetAddress = InetAddress.getByName(config.getHost());
         serverSocket = new ServerSocket(config.getPort(), config.getBacklogSize(), hostInetAddress);
+        isRunningLatch = new CountDownLatch(1);
         serverThreadPool = Executors.newFixedThreadPool(config.getNbPoolThreads());
     }
 
@@ -44,9 +51,8 @@ public class WebServer implements Runnable {
     }
 
     public synchronized void stop() {
-
         isRunning.set(false);
-
+        isRunningLatch.countDown();
         try {
             serverSocket.close();
         } catch (IOException ioException) {
@@ -54,21 +60,29 @@ public class WebServer implements Runnable {
         }
     }
 
+    @Override
     public void run() {
-
-        while (isRunning.get()) {
-
-            try {
-                serverThreadPool.execute(new WebServerWorker(serverSocket.accept(), config));
-            } catch (IOException ioException) {
-                if (!isRunning.get()) {
-                    System.out.println("Server shutdown.");
-                    break;
-                }
-                ioException.printStackTrace();
+        try {
+            IntStream.range(0, config.getNbPoolThreads()).boxed()
+                    .forEach(index -> serverThreadPool.execute(new WebServerWorker(config, isRunning, serverSocket)));
+            isRunningLatch.await();
+            if (!serverThreadPool.awaitTermination(60, TimeUnit.SECONDS)) {
+                serverThreadPool.shutdownNow();
+                if (!serverThreadPool.awaitTermination(60, TimeUnit.SECONDS))
+                    ServerLogger.log(Level.WARNING, "Server thread pool has dangling threads.");
+            }
+        } catch (InterruptedException iException) {
+            if (isRunning.get()) {
+                ServerLogger.log(Level.DEBUG, iException.getMessage());
+            } else {
+                ServerLogger.log(Level.WARNING, "Forcing Threads to shutdown.");
+                serverThreadPool.shutdownNow();
             }
         }
-
-        serverThreadPool.shutdown();
+        if (serverThreadPool.isTerminated()) {
+            ServerLogger.log(Level.INFO, "Server thread pool shutdown.");
+        } else {
+            ServerLogger.log(Level.INFO, "Server thread pool shutdown failed; dangling threads remain.");
+        }
     }
 }

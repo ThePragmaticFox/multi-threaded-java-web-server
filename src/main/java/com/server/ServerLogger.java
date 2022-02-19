@@ -6,10 +6,17 @@ import com.server.HTTP.OutputStreamWrapper;
 
 public class ServerLogger {
 
-    private static final Level level = Level.DEBUG;
+    private static final Level LEVEL = Level.ALL;
+
+    public static void log(final Level level, final String message) {
+        if (LEVEL.getSeverity() > level.getSeverity()) {
+            return;
+        }
+        System.out.println(message);
+    }
 
     public static void log(final List<String> headerLines, final OutputStreamWrapper outputStream) {
-        if (level.getSeverity() < Level.DEBUG.getSeverity()) {
+        if (LEVEL.getSeverity() > Level.DEBUG.getSeverity()) {
             return;
         }
         System.out.println("Request:\n");
