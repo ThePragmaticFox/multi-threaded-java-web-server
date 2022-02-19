@@ -18,9 +18,9 @@ Implementation based on Java ServerSockets.
   5. Send off the message
   6. Rinse & Repeat
 
-The server supports HTTP/1.1 GET messages. Everything else is declined with appropriate status codes. No Partial Byte Ranges, no Keep-Alive. It can server text, images, audio and video.
+The server supports HTTP/1.1 GET messages. Everything else is declined with appropriate status codes. No range requests, no keep-alive. It serves text, images, audio and video.
 
-The current bottleneck lies in the blocking operation of the ServerSocket and (Client)Socket. Using a Selector in combination with a ServerSocketChannel and implementing partial byte ranges as well as keep-alive could greatly increase the throughput of the server. However, this is non-trivial and takes more time and care to implement and test.
+The current bottleneck lies in the blocking operation of the ServerSocket and (Client)Socket. Using a Selector in combination with a ServerSocketChannel and implementing range requests as well as keep-alive could greatly increase the throughput of the server (~5x). However, this is non-trivial and takes more time and care to implement and test.
 
 The [test website](http://65.21.145.57) used in the www/ folder is taken from [StartBootstrap](https://github.com/StartBootstrap/startbootstrap-landing-page/tree/master), with some inserted links in order to test that the server handles linking correctly.
 
