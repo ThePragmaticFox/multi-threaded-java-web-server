@@ -50,4 +50,24 @@ public class ServerLogger {
         final String stackTrace = stringWriter.toString();
         System.out.println(stackTrace);
     }
+
+    public static void logThreadStart(final Level level) {
+        if (LEVEL.intValue() > level.intValue()) {
+            return;
+        }
+        final StringBuilder builder = new StringBuilder();
+        final String threadStarted = builder.append("Thread <<").append(Thread.currentThread().getId()).append(", ")
+                .append(Thread.currentThread().getName()).append(">> started.").toString();
+        System.out.println(threadStarted);
+    }
+
+    public static void logThreadStop(final Level level) {
+        if (LEVEL.intValue() > level.intValue()) {
+            return;
+        }
+        final StringBuilder builder = new StringBuilder();
+        final String threadFinished = builder.append("Thread <<").append(Thread.currentThread().getId()).append(", ")
+                .append(Thread.currentThread().getName()).append(">> finished.").toString();
+        System.out.println(threadFinished);
+    }
 }

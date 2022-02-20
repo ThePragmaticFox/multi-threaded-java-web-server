@@ -32,7 +32,7 @@ public class WebServer implements Runnable {
         try {
             webServer = new WebServer(webServerConfig);
         } catch (IOException ioException) {
-            ServerLogger.log(Level.WARNING, Level.FINE, ioException);
+            ServerLogger.log(Level.FINE, Level.FINER, ioException);
         }
 
         if (webServer != null) {
@@ -50,7 +50,7 @@ public class WebServer implements Runnable {
         try {
             serverSocket.close();
         } catch (IOException ioException) {
-            ServerLogger.log(Level.WARNING, Level.FINE, ioException);
+            ServerLogger.log(Level.SEVERE, Level.FINER, ioException);
         }
     }
 
@@ -61,7 +61,7 @@ public class WebServer implements Runnable {
                 serverThreadPool.execute(new WebServerWorker(config, serverSocket.accept()));
             } catch (IOException ioException) {
                 if (isRunning.get()) {
-                    ServerLogger.log(Level.SEVERE, Level.FINE, ioException);
+                    ServerLogger.log(Level.FINE, Level.FINER, ioException);
                 } else {
                     serverShutdown();
                 }

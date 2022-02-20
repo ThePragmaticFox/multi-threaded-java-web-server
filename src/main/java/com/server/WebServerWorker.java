@@ -16,10 +16,8 @@ public class WebServerWorker implements Runnable {
 
     @Override
     public void run() {
-        ServerLogger.log(Level.FINER, String.format("Thread <<" + Thread.currentThread().getId() + ", "
-                + Thread.currentThread().getName() + ">> started."));
+        ServerLogger.logThreadStart(Level.FINER);
         RequestHandler.handle(clientSocket, config);
-        ServerLogger.log(Level.FINER, String.format("Thread <<" + Thread.currentThread().getId() + ", "
-                + Thread.currentThread().getName() + ">> finished."));
+        ServerLogger.logThreadStop(Level.FINER);
     }
 }

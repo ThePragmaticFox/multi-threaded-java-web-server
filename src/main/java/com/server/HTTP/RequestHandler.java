@@ -41,7 +41,7 @@ public class RequestHandler {
             ServerLogger.log(Level.FINEST, headerLines, outputStream);
 
         } catch (IOException ioException) {
-            ServerLogger.log(Level.WARNING, Level.FINE, ioException);
+            ServerLogger.log(Level.FINE, Level.FINER, ioException);
         }
     }
 
