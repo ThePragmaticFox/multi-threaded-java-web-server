@@ -15,6 +15,10 @@ public class ServerLogger {
 
     private static final Level LEVEL = Level.INFO;
 
+    public static Level getLevel() {
+        return LEVEL;
+    }
+
     public static void log(final Level level, final String message) {
         if (LEVEL.intValue() > level.intValue()) {
             return;
@@ -22,18 +26,26 @@ public class ServerLogger {
         System.out.println(message);
     }
 
-    public static void log(final Level level, final List<String> headerLines, final OutputStreamWrapper outputStream) {
-        if (LEVEL.intValue() > level.intValue()) {
+    public static void logRequest(final List<String> headerLines) {
+        if (LEVEL.intValue() > Level.FINEST.intValue()) {
             return;
         }
         final StringBuilder builder = new StringBuilder();
-        final String logString = builder.append("Request:").append(Other.NEWLINE.getString())
-                .append(headerLines.stream().reduce(Other.EMPTY.getString(),
-                        (x, y) -> x + y + Other.NEWLINE.getString()))
-                .append(Other.NEWLINE.getString()).append("Response:").append(Other.NEWLINE.getString())
+        final String logRequest = builder.append("Request:").append(Other.NEWLINE.getString()).append(
+                headerLines.stream().reduce(Other.EMPTY.getString(), (x, y) -> x + y + Other.NEWLINE.getString()))
+                .toString();
+        System.out.println(logRequest);
+    }
+
+    public static void logResponse(final OutputStreamWrapper outputStream) {
+        if (LEVEL.intValue() > Level.FINEST.intValue()) {
+            return;
+        }
+        final StringBuilder builder = new StringBuilder();
+        final String logResponse = builder.append("Response:").append(Other.NEWLINE.getString())
                 .append(outputStream.toString(0, 250)).append(Other.NEWLINE.getString())
-                .append(new String(new char[79]).replace("\0", "-")).append(Other.NEWLINE.getString()).toString();
-        System.out.print(logString);
+                .append(new String(new char[79]).replace("\0", "-")).toString();
+        System.out.println(logResponse);
     }
 
     public static void log(final Level level1, final Level level2, final Exception exception) {

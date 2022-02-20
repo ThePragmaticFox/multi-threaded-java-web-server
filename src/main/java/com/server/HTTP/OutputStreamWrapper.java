@@ -5,6 +5,8 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.StringWriter;
+import java.util.logging.Level;
+import com.server.ServerLogger;
 
 public class OutputStreamWrapper implements Closeable {
 
@@ -19,6 +21,9 @@ public class OutputStreamWrapper implements Closeable {
     }
 
     public String toString(final int startIndex, final int stopIndex) {
+        if (ServerLogger.getLevel().intValue() > Level.FINEST.intValue()) {
+            return "";
+        }
         return stringWriter.getBuffer().substring(startIndex, Math.min(stopIndex, stringWriter.getBuffer().length()));
     }
 
@@ -27,13 +32,19 @@ public class OutputStreamWrapper implements Closeable {
     }
 
     public void write(final byte[] bytes, final int startIndex, final int stopIndex) throws IOException {
-        stringWriter.write(new String(bytes, startIndex, stopIndex));
         bufferedOutputStream.write(bytes, startIndex, stopIndex);
+        if (ServerLogger.getLevel().intValue() > Level.FINEST.intValue()) {
+            return;
+        }
+        stringWriter.write(new String(bytes, startIndex, stopIndex));
     }
 
     public void write(final byte[] bytes) throws IOException {
-        stringWriter.write(new String(bytes));
         bufferedOutputStream.write(bytes);
+        if (ServerLogger.getLevel().intValue() > Level.FINEST.intValue()) {
+            return;
+        }
+        stringWriter.write(new String(bytes));
     }
 
     public void close() throws IOException {

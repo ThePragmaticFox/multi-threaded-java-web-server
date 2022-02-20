@@ -38,7 +38,8 @@ public class RequestHandler {
                 ResponseHandler.getResponse(header.get(), outputStream);
             }
 
-            ServerLogger.log(Level.FINEST, headerLines, outputStream);
+            ServerLogger.logRequest(headerLines);
+            ServerLogger.logResponse(outputStream);
 
         } catch (IOException ioException) {
             ServerLogger.log(Level.FINE, Level.FINER, ioException);
