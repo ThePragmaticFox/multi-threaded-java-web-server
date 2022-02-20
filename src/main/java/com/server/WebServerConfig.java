@@ -58,7 +58,7 @@ public class WebServerConfig {
         try (Reader reader = Files.newBufferedReader(Paths.get(configPath))) {
             webServerConfig = gson.fromJson(reader, WebServerConfig.class);
         } catch (JsonSyntaxException | JsonIOException | IOException exception) {
-            ServerLogger.log(Level.WARNING, Level.FINE, exception);
+            ServerLogger.log(Level.WARNING, Level.FINER, exception);
         }
         if (webServerConfig != null) {
             return webServerConfig;
