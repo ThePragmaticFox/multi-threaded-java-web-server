@@ -1,13 +1,19 @@
 package com.server;
 
 import java.util.logging.Level;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.List;
 import com.server.HTTP.OutputStreamWrapper;
 import com.server.HTTP.Literals.Other;
 
+/**
+ * Work in Progress TODO: Substitue with real logger and manage levels / filters.
+ */
+
 public class ServerLogger {
 
-    private static final Level LEVEL = Level.FINE;
+    private static final Level LEVEL = Level.INFO;
 
     public static void log(final Level level, final String message) {
         if (LEVEL.intValue() > level.intValue()) {
@@ -28,5 +34,20 @@ public class ServerLogger {
                 .append(outputStream.toString(0, 250)).append(Other.NEWLINE.getString())
                 .append(new String(new char[79]).replace("\0", "-")).append(Other.NEWLINE.getString()).toString();
         System.out.print(logString);
+    }
+
+    public static void log(final Level level1, final Level level2, final Exception exception) {
+        if (LEVEL.intValue() > level1.intValue()) {
+            return;
+        }
+        System.out.println(exception.getLocalizedMessage());
+        if (LEVEL.intValue() > level2.intValue()) {
+            return;
+        }
+        final StringWriter stringWriter = new StringWriter();
+        final PrintWriter printWriter = new PrintWriter(stringWriter);
+        exception.printStackTrace(printWriter);
+        final String stackTrace = stringWriter.toString();
+        System.out.println(stackTrace);
     }
 }

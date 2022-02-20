@@ -32,7 +32,7 @@ public class WebServer implements Runnable {
         try {
             webServer = new WebServer(webServerConfig);
         } catch (IOException ioException) {
-            ServerLogger.log(Level.WARNING, ioException.getMessage());
+            ServerLogger.log(Level.WARNING, Level.FINE, ioException);
         }
 
         if (webServer != null) {
@@ -50,7 +50,7 @@ public class WebServer implements Runnable {
         try {
             serverSocket.close();
         } catch (IOException ioException) {
-            ServerLogger.log(Level.WARNING, ioException.getMessage());
+            ServerLogger.log(Level.WARNING, Level.FINE, ioException);
         }
     }
 
@@ -61,7 +61,7 @@ public class WebServer implements Runnable {
                 serverThreadPool.execute(new WebServerWorker(config, serverSocket.accept()));
             } catch (IOException ioException) {
                 if (isRunning.get()) {
-                    ServerLogger.log(Level.SEVERE, ioException.getMessage());
+                    ServerLogger.log(Level.SEVERE, Level.FINE, ioException);
                 } else {
                     serverShutdown();
                 }
@@ -74,7 +74,7 @@ public class WebServer implements Runnable {
             serverThreadPool.shutdown();
             serverThreadPool.awaitTermination(60, TimeUnit.SECONDS);
         } catch (InterruptedException e1) {
-            ServerLogger.log(Level.INFO, e1.getMessage());
+            ServerLogger.log(Level.SEVERE, Level.FINE, e1);
             serverThreadPool.shutdownNow();
         }
         ServerLogger.log(Level.INFO, "Server shutdown.");

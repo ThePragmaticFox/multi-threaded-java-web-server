@@ -16,10 +16,10 @@ public class WebServerWorker implements Runnable {
 
     @Override
     public void run() {
-        ServerLogger.log(Level.FINE, String.format("Thread <<" + Thread.currentThread().getId() + ", "
+        ServerLogger.log(Level.FINER, String.format("Thread <<" + Thread.currentThread().getId() + ", "
                 + Thread.currentThread().getName() + ">> started."));
         RequestHandler.handle(clientSocket, config);
-        ServerLogger.log(Level.FINE, String.format("Thread <<" + Thread.currentThread().getId() + ", "
+        ServerLogger.log(Level.FINER, String.format("Thread <<" + Thread.currentThread().getId() + ", "
                 + Thread.currentThread().getName() + ">> finished."));
     }
 }

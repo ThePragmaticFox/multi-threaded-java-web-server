@@ -57,14 +57,14 @@ public class WebServerConfig {
         WebServerConfig webServerConfig = null;
         try (Reader reader = Files.newBufferedReader(Paths.get(configPath))) {
             webServerConfig = gson.fromJson(reader, WebServerConfig.class);
-        } catch (JsonSyntaxException | JsonIOException | IOException e) {
-            ServerLogger.log(Level.WARNING, e.getMessage());
+        } catch (JsonSyntaxException | JsonIOException | IOException exception) {
+            ServerLogger.log(Level.WARNING, Level.FINE, exception);
         }
         if (webServerConfig != null) {
             return webServerConfig;
         }
-        ServerLogger.log(Level.WARNING, "Couldn't read config from path: " + configPath);
-        ServerLogger.log(Level.WARNING, String.format(
+        ServerLogger.log(Level.INFO, "Couldn't read config from path: " + configPath);
+        ServerLogger.log(Level.INFO, String.format(
                 "Using default config: root = %s, host = %s, port = %s, nb_pool_threads = %s, backlog_size = %s", ROOT,
                 HOST, PORT, NB_POOL_THREADS, BACKLOG_SIZE));
         return new WebServerConfig(ROOT, HOST, PORT, NB_POOL_THREADS, BACKLOG_SIZE);
