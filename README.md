@@ -11,12 +11,12 @@ If the [config.json](config.json) is in the same directory as the .jar file, the
 
 Implementation based on Java ServerSockets. 
 
-  1. Block until a message is accepted
-  2. Let a Thread from the Thread Pool handle the connection
-  3. Parse HTTP Receiver Header
-  4. Build HTTP Response Header + Body
-  5. Send off the message
-  6. Rinse & Repeat
+  1. Server event loop within a dedicated thread receives new connections over the ServerSocket.
+  2. The opened connection is sent off to a thread from the Thread Pool.
+  3. HTTP Receiver Header is parsed.
+  4. HTTP Response Header (+ Body) are built and sent.
+  5. Connection is closed, the thread is done.
+  6. Rinse & Repeat.
 
 The server supports HTTP/1.1 GET messages. Everything else is declined with appropriate status codes. No range requests, no keep-alive. It serves text, images, audio and video.
 
