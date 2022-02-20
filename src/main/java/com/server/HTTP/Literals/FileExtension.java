@@ -19,7 +19,7 @@ public enum FileExtension {
     ICO("image/x-icon"),
     BMP("image/bmp"),
     GIF("image/gif"),
-    JPG("image/jpg"),
+    JPG("image/jpeg"),
     JPEG("image/jpeg"),
     PNG("image/png"),
     SVG("image/svg+xml"),
@@ -127,6 +127,8 @@ public enum FileExtension {
             case "ASF" -> ASF;
             case "ASX" -> ASX;
             case "AVI" -> AVI;
+            case "DOC" -> DOC;
+            case "XLS" -> XLS;
             case "PPT" -> PPT;
             case "DOCX" -> DOCX;
             case "XLSX" -> XLSX;
@@ -142,6 +144,7 @@ public enum FileExtension {
             case "EPS" -> EPS;
             case "PS" -> PS;
             case "RTF" -> RTF;
+            case "7Z" -> S7Z;
             case "RAR" -> RAR;
             case "ZIP" -> ZIP;
             case "ICS" -> ICS;
