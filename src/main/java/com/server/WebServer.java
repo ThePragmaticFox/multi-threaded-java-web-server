@@ -74,7 +74,7 @@ public class WebServer implements Runnable {
             serverThreadPool.shutdown();
             serverThreadPool.awaitTermination(60, TimeUnit.SECONDS);
         } catch (InterruptedException e1) {
-            ServerLogger.log(Level.SEVERE, Level.FINE, e1);
+            ServerLogger.log(Level.SEVERE, Level.FINER, e1);
             serverThreadPool.shutdownNow();
         }
         ServerLogger.log(Level.INFO, "Server shutdown.");
