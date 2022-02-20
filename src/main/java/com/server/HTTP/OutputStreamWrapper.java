@@ -7,6 +7,7 @@ import java.io.OutputStream;
 import java.io.StringWriter;
 import java.util.logging.Level;
 import com.server.ServerLogger;
+import com.server.HTTP.Literals.Other;
 
 public class OutputStreamWrapper implements Closeable {
 
@@ -22,7 +23,7 @@ public class OutputStreamWrapper implements Closeable {
 
     public String toString(final int startIndex, final int stopIndex) {
         if (ServerLogger.getLevel().intValue() > Level.FINEST.intValue()) {
-            return "";
+            return Other.EMPTY.getString();
         }
         return stringWriter.getBuffer().substring(startIndex, Math.min(stopIndex, stringWriter.getBuffer().length()));
     }
