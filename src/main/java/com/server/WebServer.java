@@ -20,7 +20,8 @@ public class WebServer implements Runnable {
     public WebServer(final WebServerConfig webServerConfig) throws IOException {
         config = webServerConfig;
         isRunning = new AtomicBoolean(true);
-        serverSocket = new ServerSocket(config.getPort());
+        serverSocket = new ServerSocket(config.getPort(), 25000,
+                InetAddress.getByName(config.getHost()));
         serverThreadPool = Executors.newFixedThreadPool(config.getNbPoolThreads());
     }
 
